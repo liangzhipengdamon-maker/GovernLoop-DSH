@@ -1,0 +1,14 @@
+{"id":"S3-bash-deny","isError":true,"contentIsArray":true}
+{"id":"S3-probe-deny","isError":true,"bodyRan":0}
+{"id":"S3-probe-allow","isError":false,"value":"ran:ok","bodyRan":1}
+{"id":"S4-child-created","childId":"probe-child-1"}
+{"id":"S4-scope","globalSawChild":true,"childScopedForChild":1,"childScopedForParentCall":0}
+{"id":"S5-job","jobId":"probe-1","settled":true,"status":"completed","agentWokeDuringJob":false}
+{"id":"S6-no-provider","outcome":"NO_PROVIDER"}
+{"id":"S6-with-provider","outcome":"{\"answers\":[{\"id\":\"q1\",\"selected\":[\"approve\"]}]}"}
+{"id":"scenario-done","ms":483}
+{"id":"S1-latch-blocked-step","turn":2,"step":1}
+{"id":"S1-summary","preStepsSeen":2,"turnsSeen":2,"stepsSeen":0,"assistantMessages":0,"latchBlocks":1,"turnEndReasons":[{"kind":"blocked"}],"finalStatusIdle":"running"}
+{"id":"S2-summary","gateInput":[{"name":"bash","argumentsType":"object","isObject":true,"frozen":true,"command":"git push --force"},{"name":"probe_tool","argumentsType":"object","isObject":true,"frozen":true,"command":"git push --force"},{"name":"probe_tool","argumentsType":"object","isObject":true,"frozen":true,"command":"ok"},{"name":"probe_tool","argumentsType":"object","isObject":true,"frozen":true,"command":"child"},{"name":"probe_tool","argumentsType":"object","isObject":true,"frozen":true,"command":"parent"}]}
+{"id":"S3-summary","liveToolResults":5,"durableToolResults":0}
+{"id":"S7-summary","mockStreamCalls":0}
