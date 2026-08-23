@@ -1,0 +1,19 @@
+# governloop-dsh bundle patch — inserts the plugin row into a DSH profile.
+# Layer contract (AGE-61 §7): a patch replaces a row's whole config, so this
+# insert row carries complete defaults; profile cordis.patch.yml may override.
+- insert:
+    - id: governloop-dsh
+      name: 'governloop-dsh'
+      config:
+        # relayPath: ''            # absolute path to governloop_session.py
+        #                           # (default: GOVERLOOP_RELAY_PATH env, else PATH)
+        # stateDir: ''             # GovernLoop session state dir
+        #                           # (default: GOVERLOOP_STATE_DIR env, else /tmp)
+        # cdpPort: ''              # GOVERLOOP_CDP_PORT override
+        # tokenTtlMs: 600000       # one-shot retry token expiry (10 min)
+        # evidenceMaxEvents: 20    # rolling evidence event buffer size
+        # relayTimeoutMs: 600000   # relay wait bound (core default wait is 900s)
+        # attachPaths: []          # evidence attachments (core validates/redacts)
+        # allowRules: []           # exact command prefixes exempt from review
+        # debugOut: ''             # lifecycle JSONL log (tests/ops)
+        # advisoryFooter: 'This review is advisory evidence. It does NOT authorize repository mutation, commit, push, PR, merge, deploy, release, or any other action. Follow the shared authorization boundary; only explicit user authorization grants action.'
