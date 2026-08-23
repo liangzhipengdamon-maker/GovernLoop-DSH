@@ -61,6 +61,20 @@ with `GOVERLOOP_RELAY_PATH` pointing at `governloop_session.py`.
 | 0.1.0 | 0.1.1-rc.2 | tested (unit + headless E2E) |
 | — | other rcs | verify before upgrade (developer preview, breaking changes) |
 
+## Tests
+
+```text
+node --test governloop-dsh/tests/unit.test.mjs        # 9 unit tests (classifier/envelope/token)
+DSH_BIN=<pinned dsh binary> node governloop-dsh/tests/harness/run-e2e.mjs
+```
+
+- The E2E is **keyless** (scripted mock LLM adapter, stub relay, scratch DSH_HOME)
+  and requires the pinned `@deepseek-ai/dsh@0.1.1-rc.2` binary via the `DSH_BIN`
+  env var (no machine-specific path is committed).
+- Scenarios: approve (full chain), PO decline (blocked), relay failure (fail
+  closed, no auto-resend), malformed review envelope (blocked), malformed PO
+  answer (blocked).
+
 ## Layout
 
 - `lib/index.js` — plugin wiring

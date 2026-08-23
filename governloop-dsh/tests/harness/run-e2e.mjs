@@ -15,7 +15,13 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const REPO = path.resolve(__dirname, '../../..')
-const DSH_BIN = process.env.DSH_BIN || '/Users/Zhuanz/.npm/_npx/1e7f6d9597241db0/node_modules/.bin/dsh'
+// No machine-specific default: the harness requires the pinned dsh binary via
+// env (see README "Tests"). Keeps the repo free of absolute local paths.
+const DSH_BIN = process.env.DSH_BIN
+if (!DSH_BIN) {
+  console.error('DSH_BIN is required: point it at the pinned @deepseek-ai/dsh binary (see governloop-dsh/README.md "Tests")')
+  process.exit(2)
+}
 const STUB_RELAY = path.join(__dirname, 'stub-relay.mjs')
 const DRIVER = path.join(__dirname, 'scripted-adapter.mjs')
 const RUNNER = path.join(__dirname, 'e2e-runner.mjs')
@@ -24,9 +30,11 @@ const PLUGIN = path.join(REPO, 'governloop-dsh/lib/index.js')
 function scenarioName(s) { return s.name.padEnd(11) }
 
 const scenarios = [
-  { name: 'approve', env: { STUB_VERDICT: 'APPROVE', STUB_CONFIDENCE: 'high', PO_ANSWER: 'approve', E2E_EXPECT_RETRY: '1' } },
-  { name: 'po-decline', env: { STUB_VERDICT: 'APPROVE', PO_ANSWER: 'decline' } },
-  { name: 'relay-fail', env: { STUB_RELAY_EXIT: '1' } },
+  { name: 'approve', env: { STUB_VERDICT: 'APPROVE', STUB_CONFIDENCE: 'high', PO_ANSWER: 'approve', E2E_EXPECT_RETRY: '1' }, expectEvent: 'token-allowed' },
+  { name: 'po-decline', env: { STUB_VERDICT: 'APPROVE', PO_ANSWER: 'decline' }, expectEvent: 'po-not-approved' },
+  { name: 'relay-fail', env: { STUB_RELAY_EXIT: '1' }, expectEvent: 'failed' },
+  { name: 'envelope-invalid', env: { STUB_ENVELOPE_MALFORMED: '1', PO_ANSWER: 'approve' }, expectEvent: 'failed' },
+  { name: 'po-malformed', env: { STUB_VERDICT: 'APPROVE', PO_ANSWER: 'garbage-not-approve' }, expectEvent: 'po-not-approved' },
 ]
 
 let failures = 0
@@ -92,6 +100,7 @@ for (const scenario of scenarios) {
     STUB_LOG: stubLog,
     E2E_OUT: e2eOut,
     DSH_PKG_ROOT: path.resolve(path.dirname(DSH_BIN), '../../node_modules/@deepseek-ai'),
+    E2E_RUNNER_TIMEOUT_MS: '6000',
     ...scenario.env,
   }
 
@@ -139,11 +148,8 @@ for (const scenario of scenarios) {
     assert(adapterRequests === 1, `adapter requests == 1 (got ${adapterRequests}) — NO retry (action stayed blocked)`)
     assert(checkpointCalls === 1, `relay invoked exactly once (got ${checkpointCalls}) — no auto-resend`)
     assert(event('gate-deny'), 'plugin lifecycle: gate-deny', JSON.stringify(pluginEvents))
-    if (scenario.name === 'po-decline') {
-      assert(event('po-not-approved'), 'plugin lifecycle: po-not-approved (best-effort; pipeline may outlive runner exit)', JSON.stringify(pluginEvents))
-    } else {
-      assert(event('failed'), 'plugin lifecycle: failed (best-effort; pipeline may outlive runner exit)', JSON.stringify(pluginEvents))
-    }
+    const expect = scenario.expectEvent
+    assert(event(expect), `plugin lifecycle: ${expect} (best-effort; pipeline may outlive runner exit)`, JSON.stringify(pluginEvents))
   }
   console.log(`  artifacts: ${scratch}`)
 }

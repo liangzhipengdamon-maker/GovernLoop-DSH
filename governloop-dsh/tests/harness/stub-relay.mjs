@@ -46,6 +46,12 @@ if (cmd === 'checkpoint') {
     console.error('stub relay failure (STUB_RELAY_EXIT)')
     process.exit(Number(process.env.STUB_RELAY_EXIT))
   }
+  if (process.env.STUB_ENVELOPE_MALFORMED === '1') {
+    fs.writeFileSync(out, 'the reviewer wrote prose without an envelope\nno REVIEW_ENVELOPE here\n')
+    console.log(`CHECKPOINT: ${type}`)
+    console.log(`SESSION: ${sid}`)
+    process.exit(0)
+  }
   const verdict = process.env.STUB_VERDICT || 'APPROVE'
   const confidence = process.env.STUB_CONFIDENCE || 'high'
   const envelope = {
