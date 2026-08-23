@@ -64,7 +64,7 @@ with `GOVERLOOP_RELAY_PATH` pointing at `governloop_session.py`.
 ## Tests
 
 ```text
-node --test governloop-dsh/tests/unit.test.mjs governloop-dsh/tests/unit-gate.test.mjs  # 20 unit tests (classifier/envelope/token/gate-latch-provider)
+node --test governloop-dsh/tests/unit.test.mjs governloop-dsh/tests/unit-gate.test.mjs  # 21 unit tests (classifier/envelope/token/gate-latch-provider)
 DSH_BIN=<pinned dsh binary> node governloop-dsh/tests/harness/run-e2e.mjs
 ```
 
