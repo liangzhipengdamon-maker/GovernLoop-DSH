@@ -1,0 +1,25 @@
+# Environment / secrets
+.env
+.env.*
+*.local
+
+# OS / editor
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Node / plugin build artifacts
+node_modules/
+dist/
+lib/*.js
+*.tsbuildinfo
+
+# Logs and temp
+*.log
+temp/
+*.tmp
+
+# GovernLoop session state (never commit)
+governloop-state/
