@@ -12,12 +12,14 @@
 import { CheckpointManager } from './checkpoint.js'
 
 export const name = 'governloop-dsh'
-export const inject = ['userQuestions', 'jobs']
+export const inject = ['userQuestions']
 
 export function apply(ctx, config = {}) {
   const manager = new CheckpointManager(ctx, config)
-  manager.attachController()
   manager.registerPoProvider()
+  // Restore the provider slot on unload only if it is still ours (never clear a
+  // provider another plugin installed later).
+  ctx.effect(() => () => manager.dispose())
 
   // Gate 1 — per-tool: classify destructive calls, deny, record pending checkpoint.
   ctx.on('tools/pre-execute', async (exec, next) => {
@@ -33,7 +35,12 @@ export function apply(ctx, config = {}) {
     return next()
   })
 
-  // Evidence tap (live) + review kick-off for denied calls.
+  // Evidence tap (live) + review kick-off for denied calls. The review pipeline
+  // runs as a direct fire-and-forget continuation from this observer (verified
+  // end-to-end in the AGE-63 E2E). NOTE vs AGE-61 §4.2: v1 does NOT run the
+  // relay as a ctx.jobs job — the direct continuation with captured service
+  // references was empirically sufficient, and no half-wired ctx.jobs hook is
+  // left behind. Jobs-based ownership/cancellation is a documented follow-up.
   ctx.on('tools/result', (exec, result) => {
     manager.onToolResult(exec, result)
   })
@@ -42,9 +49,6 @@ export function apply(ctx, config = {}) {
   ctx.on('session/event', (session, event) => {
     manager.observeEvent(session, event)
   })
-
-  // Review delivery: synchronous onJobDone listener (active fiber; tool-jobs pattern).
-  ctx.jobs.onJobDone((snapshot, owner) => manager.onReviewJobDone(snapshot, owner))
 
   // Session teardown: abandon in-flight checkpoints, clear latches.
   ctx.on('agent/disposed', (payload) => manager.onAgentGone(payload.agent))

@@ -52,8 +52,8 @@ export class CheckpointManager {
     // dispatch returns; resolving ctx.userQuestions later would throw
     // "cannot get required service ... in inactive context".
     this.userQuestions = ctx.userQuestions
-    this.jobs = ctx.jobs
     this.config = { ...DEFAULT_CONFIG, ...config }
+    this.ownPoProvider = null
     this.bySession = new Map() // sessionId -> checkpoint record (active or terminal-blocked)
     this.events = new Map() // sessionId -> rolling evidence event buffer
     this.seq = 0
@@ -319,11 +319,20 @@ export class CheckpointManager {
    * (config.poAnswerFile / GOVERLOOP_PO_ANSWER_FILE) containing approve|decline.
    * Missing/unreadable file -> no answer -> BLOCKED (fail-closed).
    */
-  /** Attach the job controller so ctx.jobs accepts governloop review jobs. */
-  attachController() {
-    return this.jobs.attachController('governloop')
-  }
-
+  /**
+   * ADR-13 headless PO authorization surface: register the plugin's own
+   * userQuestions provider ONLY when none is active (a Web/ACP provider, when
+   * present, is never replaced or shadowed).
+   *
+   * Why v1 sets the single provider slot directly instead of calling
+   * userQuestions.registerProvider(): registerProvider() attaches the
+   * registration to the service's own fiber via ctx.effect, and that fiber is
+   * torn down before the async review pipeline reaches ask() — observed
+   * empirically in the AGE-63 spike (the provider slot came back empty). The
+   * direct field keeps the provider for this plugin's lifetime; dispose()
+   * restores the slot on unload ONLY if it is still ours (a provider another
+   * plugin installed later is left untouched).
+   */
   registerPoProvider() {
     if (!this.userQuestions) return
     if (this.userQuestions.provider !== undefined) return // a UI/ACP provider is already active — it serves
@@ -346,6 +355,15 @@ export class CheckpointManager {
     // the async review pipeline reaches ask() (see AGE-63 spike notes), so we
     // keep the provider for the plugin lifetime instead.
     this.userQuestions.provider = provider
+    this.ownPoProvider = provider
+  }
+
+  /** Plugin-unload cleanup: restore the provider slot only if it is still ours. */
+  dispose() {
+    if (this.userQuestions && this.userQuestions.provider === this.ownPoProvider) {
+      this.userQuestions.provider = undefined
+    }
+    this.ownPoProvider = null
   }
 
   async askPo(record) {

@@ -78,9 +78,13 @@ export function classify(exec, options = {}) {
   // Parsed arguments are a plain object (deep-frozen by the registry). Defensive
   // narrowing: a malformed/non-object for a classified tool is treated as
   // suspicious (fail-closed, AGE-61 §2.4).
+  // tools/pre-execute receives the registry-materialized parsed arguments
+  // (ToolExecution.arguments: unknown, AGE-61 §2.1 / AGE-63 S2) — never the raw
+  // wire string. Non-object arguments for a classified tool carry no command to
+  // match; the tool itself rejects malformed input.
   const command = args !== null && typeof args === 'object' && !Array.isArray(args) && typeof args.command === 'string'
     ? args.command
-    : (typeof args === 'string' ? args : '')
+    : ''
   const hit = matchDestructiveCommand(command, options)
   if (!hit) return null
   return { ...hit, command }
