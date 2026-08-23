@@ -75,6 +75,44 @@ DSH_BIN=<pinned dsh binary> node governloop-dsh/tests/harness/run-e2e.mjs
   closed, no auto-resend), malformed review envelope (blocked), malformed PO
   answer (blocked).
 
+## Closure confirmations (AGE-63 final review round, 2026-08-24)
+
+- **execution-plane governance**: the gate is `tools/pre-execute` (allow/deny
+  decision path). It is NOT a general argument-mutation hook — `tools/pre-execute`
+  does not rewrite execution arguments (parsed arguments only; input rewrite is
+  not supported at that seam). Result/evidence observation is `tools/result`
+  (live) plus the durable `tool/result`; the evidence path never grants execution
+  authority.
+- **DSH native enforcement stays authoritative**: a GovernLoop allow only lets a
+  call proceed through the NORMAL DSH pipeline — DSH sandbox, permission policy,
+  `approval/policy: never`, missing runtime capability, and native fail-closed
+  conditions still apply. The connector never calls `setSandboxMode` /
+  `setApprovalPolicy` and never elevates DSH permissions.
+- **per-session isolation**: latch / pending-checkpoint / retry state is keyed by
+  the DSH `SessionId`; a session cannot consume or inherit another session's
+  state; no global approval state exists (sub-agent tool calls pass through the
+  same global pipeline listener but each session's checkpoint state is its own).
+- **ADR-13 headless provider: preserved** — it is a headless *transport
+  fallback* only: never overwrites an already-active provider, never
+  auto-approves, never claims governance authority, missing answer / missing
+  provider fails closed, and `dispose()` restores the slot only if it is still
+  ours (Cordis-effect cleanup on unload; a provider installed later is left
+  untouched).
+- **token/grant**: the security invariant holds — explicit human PO
+  authorization → narrowly bound single-use grant (session + fingerprint +
+  exact command/args + expiry) → exact execution only; ChatGPT review alone
+  never authorizes; replay/reuse and mismatch fail closed. The physical mint
+  location (connector-side mechanics) is an architecture-placement question
+  tracked for AGE-64 / future Core centralization — intentionally NOT relocated
+  in this PR.
+- **transport/control plane**: `ctx.apiProxy` is DSH Host↔Client
+  infrastructure, not the governance boundary; nothing in this connector treats
+  it as a public remote-control API.
+- **not implemented here (AGE-64 scope)**: universal execution identity,
+  multi-agent lineage aggregation, governance transcript/projection events
+  (`governloop/review-request` / `governloop/review-response`), cross-agent
+  durable context, remote-agent protocol, ChatGPT memory integration.
+
 ## Layout
 
 - `lib/index.js` — plugin wiring

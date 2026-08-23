@@ -159,6 +159,26 @@ test('G3: an existing userQuestions provider is never replaced', () => {
   assert.equal(mgr.userQuestions.provider, webProvider) // untouched
 })
 
+test('G3: dispose restores the provider slot only if it is still ours', () => {
+  // 1) another provider replaces ours later (e.g. Web provider appears) — dispose must NOT clear it
+  const uq = { provider: undefined }
+  const mgr = new CheckpointManager(fakeCtx({ userQuestions: uq }), {})
+  mgr.registerPoProvider()
+  assert.equal(typeof uq.provider.ask, 'function')
+  const later = { id: 'later-provider', ask: async () => ({ answers: [] }) }
+  uq.provider = later
+  mgr.dispose()
+  assert.equal(uq.provider, later) // untouched
+
+  // 2) dispose restores the slot when it is still ours (plugin unload cleanup)
+  const uq2 = { provider: undefined }
+  const mgr2 = new CheckpointManager(fakeCtx({ userQuestions: uq2 }), {})
+  mgr2.registerPoProvider()
+  assert.equal(typeof uq2.provider.ask, 'function')
+  mgr2.dispose()
+  assert.equal(uq2.provider, undefined) // restored
+})
+
 test('G3: with no provider, the plugin installs its own headless provider (file channel)', () => {
   const uq = { provider: undefined }
   const mgr = new CheckpointManager(fakeCtx({ userQuestions: uq }), {})
