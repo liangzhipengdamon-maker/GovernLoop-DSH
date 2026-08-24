@@ -51,6 +51,55 @@ This matters especially for:
 
 The point is not to make GPT Web the execution engine. The point is to let **execution stay local while project reasoning and independent review remain connected**.
 
+## GPT Web as the project outer loop
+
+GPT Web can be more than a review surface. **When the relevant tools are connected and authorized**, it can sit across the development lifecycle and bring their context into one persistent reasoning workspace.
+
+```text
+                      GPT Web
+               persistent project outer loop
+
+      research / product / architecture / review
+                         │
+          ┌──────────────┼──────────────┐
+          ↓              ↓              ↓
+       Linear          GitHub       Docs / Drive
+   issues / planning   PR / CI      specs / evidence
+          │              │              │
+          └──────────────┼──────────────┘
+                         ↓
+                    DSH-GPTLoop
+                         ↓
+                  DeepSeek Harness
+                   local execution
+                         ↓
+               code / tools / tests
+```
+
+A real software project spans far more than code generation:
+
+**Idea / Research → Product Decision → Issue → Implementation → Test → Review → PR → CI → Merge → Release → Documentation → Follow-up**
+
+DSH is strongest in the fast local execution part of that chain. GPT Web can help connect the surrounding project context — for example research and product reasoning, Linear issues and blockers, GitHub repositories / pull requests / CI evidence, documentation, release-readiness review, and follow-up work — when those systems are available to the GPT workspace.
+
+That does **not** move authority into GPT Web:
+
+- GitHub remains the authority for repository content, commits, pull requests, and repository lifecycle state.
+- Linear remains the authority for issue and project tracking when it is used.
+- CI remains verification evidence; a green check is not itself merge or release authorization.
+- DSH remains authoritative for its native runtime, execution, sandbox, permission, session, and approval behavior.
+- Humans retain consequential lifecycle authority where required.
+
+GPT Web does not replace those systems. **It connects their context.**
+
+> **The local agent knows what it is doing now. The outer loop knows why the project is doing it.**
+
+And as coding agents become faster, this separation becomes more useful:
+
+> **The faster the inner loop becomes, the more valuable the outer loop becomes.**
+
+More detail: [`docs/product/DSH-GPTLoop-outer-loop.md`](docs/product/DSH-GPTLoop-outer-loop.md).
+
 ## What gap does it fill?
 
 DeepSeek Harness already provides the execution framework. What it does not natively provide is a reliable bridge from a running DSH agent to an already-open GPT Web conversation with the project context the human already maintains there.
@@ -129,6 +178,7 @@ So the bridge mechanics themselves add **near-zero additional DSH model-token ov
 | Native approval | ✅ Native | ✅ Native |
 | Existing GPT Web project context | Manual handoff | ✅ Connected |
 | Persistent outer-loop project reasoning | Manual | ✅ Connected |
+| Cross-tool project context (when connected) | Fragmented/manual | ✅ Available to outer loop |
 | Independent external review | Manual | ✅ Automatic checkpoint |
 | Evidence delivery | Manual copy/paste | ✅ Automatic attachments |
 | Review read-back | Manual copy/paste | ✅ Automatic |
@@ -162,6 +212,7 @@ Full package guide: [`governloop-dsh/README.md`](governloop-dsh/README.md).
 - Explicit human authorization is required where the current DSH integration requires it.
 - Failures stay blocked; no automatic resend.
 - DSH native sandbox, permission, session, and approval behavior remains authoritative.
+- Connected project tools retain their own authority; DSH-GPTLoop does not turn GPT Web into a universal execution or lifecycle authority.
 - DSH-GPTLoop stays thin; Core transport and evidence safety rules remain in GovernLoop Core.
 
 ## Compatibility
