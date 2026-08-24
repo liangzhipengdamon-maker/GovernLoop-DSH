@@ -145,3 +145,5 @@ A65_S2_NESTED=1 DSH_BIN=<pinned dsh binary> bash spike/age-65-slice2/run.sh
 
 STATUS: RESEARCH_VERIFICATION_COMPLETE
 ARCHITECTURE_ADOPTION: NOT_AUTHORIZED
+
+Related architecture boundary: see `docs/research/DSH-native-capability-boundary.md` for the Native-Gap Proof Gate. This Slice does not adopt or implement that policy.
