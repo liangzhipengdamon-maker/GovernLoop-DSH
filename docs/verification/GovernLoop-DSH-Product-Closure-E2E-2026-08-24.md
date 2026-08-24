@@ -158,3 +158,24 @@ VERDICT: S1/S2/S3 ALL GREEN — B1/B2/B4 CLOSED; Product Closure judgment pendin
 STATUS: VERIFICATION_RUN_COMPLETE (Round 3b)
 ARCHITECTURE_ADOPTION: NOT_AUTHORIZED
 VERDICT: S1/S2/S3 GREEN — B4 AUTO-FALLBACK VERIFIED (recovery=recovered); Product Closure judgment pending PO
+
+---
+
+# Round 4 — Post-merge smoke + Product Closure declaration
+
+**Date:** 2026-08-24
+**Merged (in order):** Core #109 (B1) → Core #110 (B4) → DSH #12 (B2); DSH main `13d21f1`, Core main `d2c39e4`.
+
+**Post-merge smoke (merged main, production default — no screenshot env, real relay, real ChatGPT):**
+- **ALL PRODUCT CLOSURE E2E SCENARIOS PASS** (driver exit 0): S1 bridge-closure (full loop → token-allowed), S2 authorization, S3a relay-fail / S3b po-decline / S3c attach-missing all fail-closed correctly.
+
+## Declaration (PO-authorized, 2026-08-24)
+
+> **GovernLoop-DSH Product Closure: VERIFIED**
+
+Evidence: Round 3 (single-run S1/S2/S3 green) + Round 3b (production default green; system-auto fallback recovered a truncated-shaped reply, `recovery=recovered`; zero screenshots on normal path) + post-merge smoke (merged main green). No auto-resend anywhere; fail-closed preserved throughout.
+
+Scope note: this declares the **product loop closed** (DSH ↔ GovernLoop-DSH ↔ Web ChatGPT ↔ read-back ↔ PO ↔ token retry ↔ fail-closed), NOT that the architecture is complete nor that future refactors are auto-authorized.
+
+STATUS: PRODUCT_CLOSURE_VERIFIED
+ARCHITECTURE_ADOPTION: NOT_AUTHORIZED
