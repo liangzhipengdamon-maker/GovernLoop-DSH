@@ -8,8 +8,6 @@
 
 **快速内循环。持续外循环。一个项目。**
 
-![DSH-GPTLoop 45 秒产品演示封面](docs/assets/dsh-gptloop-demo-cover.png)
-
 https://github.com/user-attachments/assets/60ece667-3e4c-46cd-8b83-1dea15ec7e08
 
 *点击 ▶ 播放 45 秒真实工作流：DSH checkpoint → GPT Web review → 回读 → 必要时人类批准 → DSH 恢复执行。*

@@ -8,8 +8,6 @@ Connect [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH
 
 **Fast inner loop. Persistent outer loop. One project.**
 
-![DSH-GPTLoop 45-second product demo cover](docs/assets/dsh-gptloop-demo-cover.png)
-
 https://github.com/user-attachments/assets/60ece667-3e4c-46cd-8b83-1dea15ec7e08
 
 *Click ▶ to play the 45-second real workflow: DSH checkpoint → GPT Web review → read-back → human approval when required → DSH resumes.*
