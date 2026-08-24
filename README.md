@@ -24,6 +24,19 @@ review read-back
 DeepSeek Harness resumes
 ```
 
+## Product demo
+
+Real recorded workflow, ~45 seconds, end-to-end (no simulation): a DSH agent
+triggers a destructive-action checkpoint → the GovernLoop bridge sends evidence
+to the existing GPT Web conversation → the independent review comes back →
+explicit human approval → the exact retry executes → DSH resumes.
+
+<video src="docs/assets/dsh-gptloop-45s-demo.mp4" controls width="100%"></video>
+
+*(If the video does not render, open
+[`docs/assets/dsh-gptloop-45s-demo.mp4`](docs/assets/dsh-gptloop-45s-demo.mp4)
+directly. Background music: PIXABAY.)*
+
 ## Status
 
 **Product Closure: VERIFIED (2026-08-24).**
