@@ -22,12 +22,35 @@ DeepSeek Harness resumes
 
 ## Status
 
-- **AGE-60** — research: DSH architecture and plugin model
-  (`docs/research/AGE-60-dsh-plugin-research.md`, branch `age-60/research-dsh-plugin`).
-- **AGE-61** — architecture/design only: integration contract
-  (`docs/architecture/AGE-61-governloop-dsh-integration-architecture.md`, branch
-  `age-61/dsh-integration-architecture`).
-- **No implementation yet.** No runtime/plugin code exists in this repository.
+**Product Closure: VERIFIED (2026-08-24).**
+
+The thin adapter is implemented and verified end-to-end in a real environment
+(real Chrome/CDP + bound ChatGPT Web conversation + real Neutral Relay):
+S1 bridge closure (deny → review → read-back → envelope → PO → one-shot token →
+exact retry), S2 authorization, and S3 fail-closed scenarios (relay failure, PO
+decline, missing attachment) all pass. Evidence:
+`docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md`.
+
+Research history: AGE-60 (research), AGE-61 (architecture), AGE-65 (validation
+slices) — see `docs/research/` and `docs/architecture/`. These are **historical
+records, not the current runtime authority**.
+
+## Install
+
+The plugin package lives in [`governloop-dsh/`](governloop-dsh/); its README has
+the full install, config, and test instructions.
+
+Minimal prerequisites:
+
+- Pinned `@deepseek-ai/dsh@0.1.1-rc.2` (developer preview — verify before upgrades).
+- [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) with the
+  Neutral Relay and its session manager (`governloop_session.py`).
+- Chrome running with CDP (`--remote-debugging-port=9233`) and an open, bound
+  ChatGPT conversation.
+
+Mount the plugin row via the bundle patch (`governloop-dsh/cordis.patch.yml`) or
+`dsh plugin --profile <name> add governloop-dsh`, with
+`GOVERLOOP_SESSION_MANAGER_PATH` pointing at `governloop_session.py`.
 
 ## Principles
 
@@ -40,5 +63,9 @@ DeepSeek Harness resumes
   integration.
 - **DSH is developer preview.** Versions are pinned and claims are verified against
   DeepSeek Harness source/docs before use.
+
+## License
+
+[Apache-2.0](LICENSE).
 
 See `AGENTS.md` for the working rules in this repository.
