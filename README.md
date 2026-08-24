@@ -8,9 +8,11 @@ Connect [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH
 
 **Fast inner loop. Persistent outer loop. One project.**
 
-<video src="docs/assets/dsh-gptloop-45s-demo.mp4" poster="docs/assets/dsh-gptloop-demo-cover.png" controls width="100%"></video>
+![DSH-GPTLoop 45-second product demo cover](docs/assets/dsh-gptloop-demo-cover.png)
 
-*45-second real workflow: DSH checkpoint → GPT Web review → read-back → human approval when required → DSH resumes.*
+https://github.com/user-attachments/assets/60ece667-3e4c-46cd-8b83-1dea15ec7e08
+
+*Click ▶ to play the 45-second real workflow: DSH checkpoint → GPT Web review → read-back → human approval when required → DSH resumes.*
 
 > **Not using DeepSeek Harness?** Use [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) directly for WorkBuddy, OpenCode, Claude Code, Codex, or other agents.
 

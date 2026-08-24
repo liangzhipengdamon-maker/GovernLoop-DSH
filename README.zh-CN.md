@@ -8,9 +8,11 @@
 
 **快速内循环。持续外循环。一个项目。**
 
-<video src="docs/assets/dsh-gptloop-45s-demo.mp4" poster="docs/assets/dsh-gptloop-demo-cover.png" controls width="100%"></video>
+![DSH-GPTLoop 45 秒产品演示封面](docs/assets/dsh-gptloop-demo-cover.png)
 
-*45 秒真实工作流：DSH checkpoint → GPT Web review → 回读 → 必要时人类批准 → DSH 恢复执行。*
+https://github.com/user-attachments/assets/60ece667-3e4c-46cd-8b83-1dea15ec7e08
+
+*点击 ▶ 播放 45 秒真实工作流：DSH checkpoint → GPT Web review → 回读 → 必要时人类批准 → DSH 恢复执行。*
 
 > **不是 DSH 用户？** WorkBuddy、OpenCode、Claude Code、Codex 或其他 Agent，请直接使用 [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop)。
 
