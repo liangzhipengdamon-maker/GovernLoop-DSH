@@ -1,5 +1,7 @@
 # DSH-GPTLoop
 
+**English** | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
+
 **The outer loop for DeepSeek Harness.**
 
 Connect [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH) to a persistent GPT Web outer loop for project reasoning, independent review, and human authority.
