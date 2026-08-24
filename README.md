@@ -16,9 +16,7 @@ https://github.com/user-attachments/assets/60ece667-3e4c-46cd-8b83-1dea15ec7e08
 
 ## Why GovernLoop-DSH
 
-DeepSeek Harness is an open-source agent harness built around an **“everything is a plugin”** architecture powered by Cordis. Its model adapter, tool registry, session log, and agent loop are all plugins, so the execution system is composable and replaceable through configuration rather than a privileged core that must be patched.
-
-That gives DSH a strong native inner loop for agent execution. DSH-GPTLoop does not replace it; it adds the missing external layer: a persistent GPT Web outer loop for project reasoning, independent review, and cross-tool context. When GitHub, Linear, or Docs are connected, GPT can bring their context into the same project conversation while each system keeps its own authority.
+DeepSeek Harness keeps execution in the local runtime — tools, tests, sandboxing, sessions, and approval stay inside the local execution loop. GPT Web works at a different layer: it holds the project thinking the human already maintains — architecture, trade-offs, review history, and decisions. governloop-dsh fills only the missing bridge between them: it sends DeepSeek Harness's critical checkpoints and evidence to GPT Web, brings the independent review back into DeepSeek Harness, and preserves explicit human authority where required — execution stays local, project thinking stays connected.
 
 - **No clipboard relay.** Review requests and relevant evidence can move to GPT Web and the result can return to the same DSH workflow.
 - **Keep the outer loop persistent.** GPT Web can retain project reasoning and independent review while DSH stays focused on local execution.
