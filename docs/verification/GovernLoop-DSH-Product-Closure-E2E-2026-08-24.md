@@ -140,3 +140,21 @@ VERDICT: B1/B2 CLOSED — S1/S2 VERIFIED, S3 VERIFIED, B4 OPEN (PO decision)
 STATUS: VERIFICATION_RUN_COMPLETE (Round 3)
 ARCHITECTURE_ADOPTION: NOT_AUTHORIZED
 VERDICT: S1/S2/S3 ALL GREEN — B1/B2/B4 CLOSED; Product Closure judgment pending PO
+
+---
+
+# Round 3b — B4 auto-fallback convention (production default) + verification
+
+**Date:** 2026-08-24
+**Convention (PO):** production default = **zero screenshots on the normal path**; the screenshot fallback is **system-auto** — when the reply still looks truncated at finalize (`_looks_truncated`, unbalanced JSON-shaped text), the relay proactively captures a token-free PNG and performs a short recovery re-read (no user consent, no waiting for a request). `GOVERLOOP_SCREENSHOT_DIR` only adds optional forensics; screenshots are never analysed automatically.
+
+**Round 3b results (production default — `GOVERLOOP_SCREENSHOT_DIR` unset):**
+- **ALL PRODUCT CLOSURE E2E SCENARIOS PASS** (driver exit 0).
+- Exactly **1 auto screenshot** on the anomaly path (`*-truncated.png`): one real-delivery scenario's reply was truncated-shaped at finalize → system-auto capture + recovery re-read → **recovered** the full 416-char envelope (diag `recovery=recovered`, `stopPresent=false`, `hasCopyRate=true`). The other delivered scenario had `recovery=none` (no screenshot).
+- Normal path produced **zero** screenshots.
+
+**Meaning:** the auto-fallback is verified end-to-end in production-default configuration: it activates itself on truncation-shaped output (no consent/request needed), captures token-free evidence, and recovers the complete reply — while leaving the normal path screenshot-free.
+
+STATUS: VERIFICATION_RUN_COMPLETE (Round 3b)
+ARCHITECTURE_ADOPTION: NOT_AUTHORIZED
+VERDICT: S1/S2/S3 GREEN — B4 AUTO-FALLBACK VERIFIED (recovery=recovered); Product Closure judgment pending PO
