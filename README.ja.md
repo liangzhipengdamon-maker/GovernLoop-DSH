@@ -51,6 +51,55 @@ DSH は、ローカル実行、ツール、テスト、サンドボックス、�
 
 目的は GPT Web を実行エンジンにすることではありません。**実行はローカルに残しながら、プロジェクト推論と独立レビューを接続し続けること**が目的です。
 
+## GPT Web をプロジェクトの外側ループとして使う
+
+GPT Web は review surface だけに限りません。**関連ツールが接続され、利用権限がある場合**、開発ライフサイクル全体にまたがって各システムの文脈を1つの持続的な reasoning workspace に集約できます。
+
+```text
+                      GPT Web
+              persistent project outer loop
+
+        research / product / architecture / review
+                         │
+          ┌──────────────┼──────────────┐
+          ↓              ↓              ↓
+       Linear          GitHub       Docs / Drive
+   issues / planning   PR / CI      specs / evidence
+          │              │              │
+          └──────────────┼──────────────┘
+                         ↓
+                    DSH-GPTLoop
+                         ↓
+                  DeepSeek Harness
+                   local execution
+                         ↓
+               code / tools / tests
+```
+
+実際のソフトウェア開発は「コード生成」だけではありません。
+
+**Idea / Research → Product Decision → Issue → Implementation → Test → Review → PR → CI → Merge → Release → Documentation → Follow-up**
+
+DSH が最も強いのは、この中の高速なローカル実行です。一方 GPT Web は、関連ツールが利用可能なとき、周辺のプロジェクト文脈を接続できます。たとえば、調査とプロダクト推論、Linear の issue / blocker、GitHub repository / PR / CI evidence、ドキュメント、release-readiness review、follow-up work です。
+
+ただし、これは権限を GPT Web に移すことを意味しません。
+
+- GitHub は repository content、commit、PR、repository lifecycle state の authority のままです。
+- Linear を利用する場合、issue / project tracking の authority は Linear のままです。
+- CI は verification evidence であり、green check 自体が Merge / Release authorization になるわけではありません。
+- DSH は native runtime、execution、sandbox、permission、session、approval behavior の authority のままです。
+- 必要な consequential lifecycle authority は人間が保持します。
+
+GPT Web はそれらを置き換えません。**それらの文脈をつなぎます。**
+
+> **ローカル Agent は「今なにをしているか」を知る。外側ループは「なぜこのプロジェクトがそれをしているのか」を知る。**
+
+Coding Agent が速くなるほど、この分離の価値は高まります。
+
+> **内側ループが速くなるほど、外側ループは重要になる。**
+
+詳細：[`docs/product/DSH-GPTLoop-outer-loop.md`](docs/product/DSH-GPTLoop-outer-loop.md)。
+
 ## どのギャップを埋めるのか
 
 DeepSeek Harness はすでに実行フレームワークを提供しています。一方で、実行中の DSH Agent を、人間がプロジェクト文脈を維持している既存の GPT Web 会話に、信頼性高くつなぐ機能はネイティブにはありません。
@@ -131,6 +180,7 @@ DSH-GPTLoop は DSH の内部 reasoning loop に別の LLM を挿入しません
 | Native approval | ✅ Native | ✅ Native |
 | Existing GPT Web project context | Manual handoff | ✅ Connected |
 | Persistent outer-loop project reasoning | Manual | ✅ Connected |
+| Cross-tool project context (when connected) | Fragmented/manual | ✅ Available to outer loop |
 | Independent external review | Manual | ✅ Automatic checkpoint |
 | Evidence delivery | Manual copy/paste | ✅ Automatic attachments |
 | Review read-back | Manual copy/paste | ✅ Automatic |
@@ -164,6 +214,7 @@ dsh plugin --profile <name> add governloop-dsh
 - 現在の DSH integration が人間承認を要求する箇所では、明示的な人間承認が必要です。
 - failure は blocked のままです。automatic resend は行いません。
 - DSH native sandbox、permission、session、approval behavior が引き続き authoritative です。
+- 接続された project tool はそれぞれの authority を保持します。DSH-GPTLoop は GPT Web を universal execution authority や lifecycle authority にしません。
 - DSH-GPTLoop は thin のままです。Core transport と evidence safety rule は GovernLoop Core に残ります。
 
 ## Compatibility
