@@ -62,6 +62,8 @@ dsh plugin --profile <name> add governloop-dsh
 
 Or mount locally with `governloop-dsh/cordis.patch.yml` and set `GOVERLOOP_SESSION_MANAGER_PATH` to `governloop_session.py`.
 
+**First time here?** Follow the [5-step Quick Start + Troubleshooting guide](docs/QUICK_START.md).
+
 Full package guide: [`governloop-dsh/README.md`](governloop-dsh/README.md).
 
 ## Safety
@@ -82,6 +84,7 @@ DSH is developer preview, so upgrades should be re-verified before use.
 
 ## Learn more
 
+- Quick Start + Troubleshooting: [`docs/QUICK_START.md`](docs/QUICK_START.md)
 - Product model: [`docs/product/DSH-GPTLoop-outer-loop.md`](docs/product/DSH-GPTLoop-outer-loop.md)
 - Verification evidence: [`docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md`](docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md)
 - Technical package: [`governloop-dsh/README.md`](governloop-dsh/README.md)
