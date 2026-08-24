@@ -1,19 +1,22 @@
 # governloop-dsh
 
-Thin native [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH)
-plugin that connects DSH agents to **GovernLoop**'s independent ChatGPT review with
-checkpoints and evidence.
+Technical DSH adapter package for **DSH-GPTLoop — The outer loop for DeepSeek Harness**.
 
-**Version 0.1.0 — minimal vertical slice:** `BEFORE_DESTRUCTIVE_ACTION` on
-destructive `bash` commands (git history-rewriting + `rm -rf` class). Design
-contract: `docs/architecture/AGE-61-governloop-dsh-integration-architecture.md`
-(Rev 2). Verified runtime assumptions: `docs/spikes/AGE-63-dsh-runtime-verification.md`.
+DSH-GPTLoop connects [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH) to a persistent GPT Web outer loop for project reasoning, independent review, and human authority. This package stays deliberately thin: DSH remains the fast local execution loop; GPT Web remains the persistent outer-loop reasoning surface; GovernLoop provides the bridge.
+
+> **Native first. No second agent framework. No duplicated sandbox. No duplicated session system.**
+
+The outer loop can also become a cross-tool project context surface when the relevant systems are connected to GPT Web — for example research sources, Linear planning/issues, GitHub repositories / pull requests / CI evidence, documentation, and release-readiness work. Those systems retain their own authority; the adapter does not turn GPT Web into a universal execution or lifecycle authority.
+
+Product explanation: [`../docs/product/DSH-GPTLoop-outer-loop.md`](../docs/product/DSH-GPTLoop-outer-loop.md).
+
+**Version 0.1.0 — minimal vertical slice:** `BEFORE_DESTRUCTIVE_ACTION` on destructive `bash` commands (git history-rewriting + `rm -rf` class). Design contract: `docs/architecture/AGE-61-governloop-dsh-integration-architecture.md` (Rev 2). Verified runtime assumptions: `docs/spikes/AGE-63-dsh-runtime-verification.md`.
 
 ```text
 DSH tool action (git push --force)
 → tools/pre-execute classifier deny + latch
 → agent/pre-step rejects while latch set (pause)
-→ evidence → governloop_session.py → ChatGPT review (structured envelope)
+→ evidence → governloop_session.py → GPT Web review (structured envelope)
 → explicit human (PO) authorization via userQuestions
 → one-shot retry token (exact call, expiring)
 → verdict injected + followup (resume)
@@ -21,15 +24,12 @@ DSH tool action (git push --force)
 
 ## Authority model (non-negotiable)
 
-- The ChatGPT review is **advisory evidence only**. It never authorizes execution.
-- A destructive action may only run after **explicit human (Product Owner)
-  authorization** mints a **one-shot retry token** bound to
-  `session + call fingerprint + exact command/args + expiry` (default 10 min).
-- **Fail closed:** an unknown/malformed/low-confidence review, a declined PO, a
-  relay failure, or a timeout keeps the action blocked (session latch held).
-  **No automatic resend.**
-- GovernLoop core is unchanged and agent-agnostic; this plugin only translates DSH
-  events and carries evidence/verdicts through the `governloop_session.py` CLI seam.
+- GPT Web review is **advisory evidence only**. It never authorizes execution.
+- A destructive action may only run after **explicit human (Product Owner) authorization** mints a **one-shot retry token** bound to `session + call fingerprint + exact command/args + expiry` (default 10 min).
+- **Fail closed:** an unknown/malformed/low-confidence review, a declined PO, a relay failure, or a timeout keeps the action blocked (session latch held). **No automatic resend.**
+- DSH native sandbox, permissions, sessions, and approval behavior remain authoritative.
+- Connected tools keep their own authority: GitHub for repository state, Linear for issue/project tracking when used, CI as verification evidence, and humans for consequential lifecycle authorization where required.
+- GovernLoop Core remains agent-agnostic; this plugin only translates DSH events and carries evidence/verdicts through the `governloop_session.py` CLI seam.
 
 ## Install
 
@@ -37,9 +37,7 @@ DSH tool action (git push --force)
 dsh plugin --profile <name> add governloop-dsh
 ```
 
-Or mount locally (dev): `dsh --profile <name> --patch <repo>/governloop-dsh/cordis.patch.yml "…"`
-with `GOVERLOOP_SESSION_MANAGER_PATH` (or `config.sessionManagerPath`) pointing
-at `governloop_session.py`.
+Or mount locally (dev): `dsh --profile <name> --patch <repo>/governloop-dsh/cordis.patch.yml "…"` with `GOVERLOOP_SESSION_MANAGER_PATH` (or `config.sessionManagerPath`) pointing at `governloop_session.py`.
 
 ### Config (`cordis.patch.yml` row)
 
@@ -60,67 +58,34 @@ at `governloop_session.py`.
 
 | governloop-dsh | @deepseek-ai/dsh | Status |
 |---|---|---|
-| 0.1.0 | 0.1.1-rc.2 | tested (unit + headless E2E) |
+| 0.1.0 | 0.1.1-rc.2 | Product Closure VERIFIED |
 | — | other rcs | verify before upgrade (developer preview, breaking changes) |
 
 ## Tests
 
 ```text
-node --test governloop-dsh/tests/unit.test.mjs governloop-dsh/tests/unit-gate.test.mjs governloop-dsh/tests/unit-relay.test.mjs  # 27 unit tests (classifier/envelope/token/gate-latch-provider/relay-CLI-contract)
+node --test governloop-dsh/tests/unit.test.mjs governloop-dsh/tests/unit-gate.test.mjs governloop-dsh/tests/unit-relay.test.mjs
 DSH_BIN=<pinned dsh binary> node governloop-dsh/tests/harness/run-e2e.mjs
 ```
 
-- The E2E is **keyless** (scripted mock LLM adapter, stub relay, scratch DSH_HOME)
-  and requires the pinned `@deepseek-ai/dsh@0.1.1-rc.2` binary via the `DSH_BIN`
-  env var (no machine-specific path is committed).
-- Scenarios: approve (full chain), PO decline (blocked), relay failure (fail
-  closed, no auto-resend), malformed review envelope (blocked), malformed PO
-  answer (blocked).
+- The E2E is **keyless** (scripted mock LLM adapter, stub relay, scratch DSH_HOME) and requires the pinned `@deepseek-ai/dsh@0.1.1-rc.2` binary via `DSH_BIN`.
+- Scenarios include approve (full chain), PO decline (blocked), relay failure (fail closed, no auto-resend), malformed review envelope (blocked), and malformed PO answer (blocked).
 
 ## Closure confirmations (AGE-63 final review round, 2026-08-24)
 
-- **execution-plane governance**: the gate is `tools/pre-execute` (allow/deny
-  decision path). It is NOT a general argument-mutation hook — `tools/pre-execute`
-  does not rewrite execution arguments (parsed arguments only; input rewrite is
-  not supported at that seam). Result/evidence observation is `tools/result`
-  (live) plus the durable `tool/result`; the evidence path never grants execution
-  authority.
-- **DSH native enforcement stays authoritative**: a GovernLoop allow only lets a
-  call proceed through the NORMAL DSH pipeline — DSH sandbox, permission policy,
-  `approval/policy: never`, missing runtime capability, and native fail-closed
-  conditions still apply. The connector never calls `setSandboxMode` /
-  `setApprovalPolicy` and never elevates DSH permissions.
-- **per-session isolation**: latch / pending-checkpoint / retry state is keyed by
-  the DSH `SessionId`; a session cannot consume or inherit another session's
-  state; no global approval state exists (sub-agent tool calls pass through the
-  same global pipeline listener but each session's checkpoint state is its own).
-- **ADR-13 headless provider: preserved** — it is a headless *transport
-  fallback* only: never overwrites an already-active provider, never
-  auto-approves, never claims governance authority, missing answer / missing
-  provider fails closed, and `dispose()` restores the slot only if it is still
-  ours (Cordis-effect cleanup on unload; a provider installed later is left
-  untouched).
-- **token/grant**: the security invariant holds — explicit human PO
-  authorization → narrowly bound single-use grant (session + fingerprint +
-  exact command/args + expiry) → exact execution only; ChatGPT review alone
-  never authorizes; replay/reuse and mismatch fail closed. The physical mint
-  location (connector-side mechanics) is an architecture-placement question
-  tracked for AGE-64 / future Core centralization — intentionally NOT relocated
-  in this PR.
-- **transport/control plane**: `ctx.apiProxy` is DSH Host↔Client
-  infrastructure, not the governance boundary; nothing in this connector treats
-  it as a public remote-control API.
-- **not implemented here (AGE-64 scope)**: universal execution identity,
-  multi-agent lineage aggregation, governance transcript/projection events
-  (`governloop/review-request` / `governloop/review-response`), cross-agent
-  durable context, remote-agent protocol, ChatGPT memory integration.
+- **execution-plane governance**: the gate is `tools/pre-execute` (allow/deny decision path). It is not a general argument-mutation hook. Result/evidence observation is `tools/result` plus durable `tool/result`; the evidence path never grants execution authority.
+- **DSH native enforcement stays authoritative**: a GovernLoop allow only lets a call proceed through the normal DSH pipeline. The connector never calls `setSandboxMode` / `setApprovalPolicy` and never elevates DSH permissions.
+- **per-session isolation**: latch / pending-checkpoint / retry state is keyed by DSH `SessionId`; no global approval state exists.
+- **ADR-13 headless provider: preserved** — transport fallback only; never overwrites an active provider, never auto-approves, missing answer/provider fails closed, and cleanup restores only what it owns.
+- **token/grant**: explicit human PO authorization → narrowly bound single-use grant → exact execution only; GPT review alone never authorizes; replay/reuse and mismatch fail closed.
+- **transport/control plane**: `ctx.apiProxy` is DSH Host↔Client infrastructure, not the governance boundary.
 
 ## Layout
 
 - `lib/index.js` — plugin wiring
-- `lib/checkpoint.js` — latch + state machine (AGE-61 §4)
-- `lib/classifier.js` — destructive action classifier (AGE-61 §2)
-- `lib/envelope.js` — structured review envelope (AGE-61 §3.4)
-- `lib/token.js` — one-shot retry token (AGE-61 §4.3)
-- `lib/relay.js` — `governloop_session.py` CLI client (AGE-61 §6.2)
-- `tests/` — unit tests + keyless headless E2E harness (stub relay)
+- `lib/checkpoint.js` — latch + state machine
+- `lib/classifier.js` — destructive action classifier
+- `lib/envelope.js` — structured review envelope
+- `lib/token.js` — one-shot retry token
+- `lib/relay.js` — `governloop_session.py` CLI client
+- `tests/` — unit tests + keyless headless E2E harness
