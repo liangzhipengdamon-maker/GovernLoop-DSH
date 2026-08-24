@@ -14,9 +14,11 @@ https://github.com/user-attachments/assets/60ece667-3e4c-46cd-8b83-1dea15ec7e08
 
 > **不是 DSH 用户？** WorkBuddy、OpenCode、Claude Code、Codex 或其他 Agent，请直接使用 [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop)。
 
-## 为什么是 GovernLoop
+## 为什么是 GovernLoop-DSH
 
-本地 Coding Agent 很擅长快速执行，但更广泛的项目上下文往往存在于其他地方。GovernLoop 只桥接关键 checkpoint，不再让人反复复制粘贴上下文。
+DeepSeek Harness 本身已经提供了很强的原生执行治理：sandbox mode 用于约束文件系统影响，per-session approval policy 决定具体动作是否可以继续；当 approval 不可用时，默认 fail closed。
+
+DSH-GPTLoop 不替代这套内部框架，而是在外面增加 GPT Web 外循环：负责持续的项目推理、独立审查和跨工具上下文。GitHub、Linear 或文档工具接入后，GPT 可以把这些上下文带进同一条项目对话，同时各系统继续保留自己的 authority。
 
 - **去掉人工 clipboard relay。** Review request 和必要 evidence 可以自动进入 GPT Web，结果再回到同一条 DSH 工作流。
 - **保留持续外循环。** GPT Web 负责持续的项目推理和独立审查，DSH 继续专注本地执行。
@@ -81,8 +83,6 @@ dsh plugin --profile <name> add governloop-dsh
 DSH 仍处于 developer preview，升级前应重新验证。
 
 ## 更多说明
-
-GPT Web 是这个项目的持续外循环工作区：DSH 专注本地执行时，GPT 保留项目推理和独立审查上下文。GitHub、Linear 或文档工具接入后，GPT 可以把这些上下文带进同一条项目对话，但不会取代它们各自的 authority。
 
 - 产品模型：[`docs/product/DSH-GPTLoop-outer-loop.md`](docs/product/DSH-GPTLoop-outer-loop.md)
 - 验证证据：[`docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md`](docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md)
