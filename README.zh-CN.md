@@ -16,9 +16,9 @@ https://github.com/user-attachments/assets/60ece667-3e4c-46cd-8b83-1dea15ec7e08
 
 ## 为什么是 GovernLoop-DSH
 
-DeepSeek Harness 本身已经提供了很强的原生执行治理：sandbox mode 用于约束文件系统影响，per-session approval policy 决定具体动作是否可以继续；当 approval 不可用时，默认 fail closed。
+DeepSeek Harness 是一个开源 Agent Harness，核心采用 **“Everything is a Plugin”** 架构，并由 Cordis 驱动。它的 model adapter、tool registry、session log、agent loop 都是插件，因此执行系统可以通过配置组合和替换，而不是依赖一个必须不断打补丁的特权核心。
 
-DSH-GPTLoop 不替代这套内部框架，而是在外面增加 GPT Web 外循环：负责持续的项目推理、独立审查和跨工具上下文。GitHub、Linear 或文档工具接入后，GPT 可以把这些上下文带进同一条项目对话，同时各系统继续保留自己的 authority。
+这使 DSH 本身就拥有非常强的原生内循环执行框架。DSH-GPTLoop 不替代它，而是在外部补上缺失的一层：持续存在的 GPT Web 外循环，用于项目推理、独立审查和跨工具上下文。GitHub、Linear 或文档工具接入后，GPT 可以把这些上下文带进同一条项目对话，同时各系统继续保留自己的 authority。
 
 - **去掉人工 clipboard relay。** Review request 和必要 evidence 可以自动进入 GPT Web，结果再回到同一条 DSH 工作流。
 - **保留持续外循环。** GPT Web 负责持续的项目推理和独立审查，DSH 继续专注本地执行。
