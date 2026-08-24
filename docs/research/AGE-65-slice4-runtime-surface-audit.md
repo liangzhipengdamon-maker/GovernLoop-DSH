@@ -20,8 +20,8 @@ adoption decision.
 | # | File | Lines | Role | Verdict | Rationale |
 |---|---|---|---|---|---|
 | 1 | `lib/index.js` | 61 | Plugin wiring: gates (pre-execute / pre-step), evidence taps, dispose, provider registration | **KEEP** | Pure DSH-side wiring of the in-scope adapter surface (AGENTS.md: lifecycle listeners, pause, evidence extraction, review read-back). No Core semantics authored. |
-| 2 | `lib/checkpoint.js` | 413 | DSH-side governor: state machine, latch, review pipeline orchestration, PO ask, evidence buffer | **SIMPLIFY** | The *mechanics* are in-scope (gate→deny, latch, evidence tap, PO transport, token consume, verdict inject). The *state machine* (statuses, merge rules, which statuses latch) encodes **checkpoint semantics — Core-owned**; should be driven by Core's checkpoint model, not authored here. Largest shrink target. |
-| 3 | `lib/classifier.js` | 91 | Destructive-command trigger rules (bash only) at `tools/pre-execute` | **KEEP** | No DSH-native equivalent (sandbox is file-effect, approval is policy-driven — neither classifies command content); thin detection, not capability. Optional SIMPLIFY: move rule table to `cordis.patch.yml` config. |
+| 2 | `lib/checkpoint.js` | 413 | DSH-side governor: state machine, latch, review pipeline orchestration, PO ask, evidence buffer | **SIMPLIFY (defer structural migration)** | Keep the mechanics (gate→deny, latch, evidence tap, PO transport, token consume, verdict inject); **defer any "migrate to Core" restructure until the token trial and the bridge Product-Closure E2E complete** (per GPT review R1). Long-term stable: DSH hook wiring, bridge trigger, bridge response injection, bridge failure→fail-closed minimal state. Trial-with-token (re-check if the token is removed): plugin-owned PO ask transport, token mint/consume, retry-token latch state. |
+| 3 | `lib/classifier.js` | 91 | Destructive-command trigger rules (bash only) at `tools/pre-execute` | **KEEP (bridge-trigger only)** | No DSH-native equivalent (sandbox is file-effect, approval is policy-driven — neither classifies command content); thin detection, not capability. **Scope limit (GPT review R1): bridge trigger only** ("is this action worth triggering a web GPT review?") — must NOT evolve into a general destructive-action policy engine. |
 | 4 | `lib/envelope.js` | 114 | Review envelope protocol: template (buildCheckpointMessage) + extract/validate | **SIMPLIFY** | Keep the thin **consuming** half (extract/validate of Core's response file — needed for fail-closed read-back). The **authoring** half (envelope constants, `REVIEW_ENVELOPE:` template, verdict vocabulary) is review-protocol definition — belongs in Core; the plugin should consume Core's schema. |
 | 5 | `lib/relay.js` | 122 | Core CLI seam: spawn `governloop_session.py`, request file, checkpoint send, response file path, no auto-resend | **KEEP** | The ChatGPT Web Bridge is the one proven native gap (boundary register G1–G3); the plugin only spawns Core's session manager — transport, delivery confirmation, fail-closed stay Core-owned. Correct thin placement. |
 | 6 | `lib/token.js` | 63 | One-shot retry token: fingerprint+exactCommand+expiry+single-use, minted only after PO | **TRIAL-KEEP(token)** | AGE-65 slice 3: `PARTIAL` — DSH `ctx.approval` satisfies the hard gate but cannot express "PO once, retry same command without re-PO" and lacks content-level binding/expiry. Token retained; deletion requires a separate PO decision. |
@@ -66,9 +66,31 @@ authored — by the plugin):
   `ctx.approval` is the native pre-execution gate; GovernLoop adds only the
   retry-grant role the token covers.
 
-**One-line boundary:** *the runtime keeps the wiring, the Core seam, the
-trial token and the trigger rules; every piece of GovernLoop *semantics* moves
-to Core and is consumed, never re-implemented.*
+**Three-category boundary (P1 wording fix, GPT review R1):** semantics are
+split three ways, not Core/plugin two ways:
+
+- ① **Agent native → DSH**: session, lineage, transcript, approval, sandbox,
+  userQuestions, subagent lifecycle.
+- ② **Bridge-common → GovernLoop Core may own**: ChatGPT Web transport, send
+  confirmation, duplicate-send protection, complete read-back, attachment
+  redaction/secret safety, minimal review request/response contract.
+- ③ **Adapter-specific bridge mapping → GovernLoop-DSH**: when a DSH hook
+  triggers the bridge, thin DSH-session↔conversation binding, injecting the GPT
+  result into DSH, DSH-specific fail-closed mapping.
+
+**Only cross-agent, bridge-required semantics qualify for Core.** DSH native
+capabilities never enter Core; DSH-specific bridge mapping stays in the plugin.
+Explicitly rejected: "the plugin must not have semantics, so everything goes
+back into a Governance Core" — that would be reverse expansion.
+
+**One-line boundary:** *the runtime keeps the DSH-specific wiring, the Core
+bridge seam, the trial token and the bridge-trigger rules; bridge-common
+semantics may live in Core, and everything outside the bridge belongs to DSH
+native — nothing is re-implemented.*
+
+Deferred (per GPT review R1, adopted by PO 2026-08-24): structural migration of
+`checkpoint.js`/`envelope.js` to Core happens only after the Product-Closure E2E
+is green and the token trial concludes.
 
 ## 3. Notes
 
@@ -85,10 +107,12 @@ to Core and is consumed, never re-implemented.*
 
 ## Final report
 
-- Per-file: 9 KEEP / 2 SIMPLIFY (`checkpoint.js`, `envelope.js`) /
+- Per-file: 9 KEEP / 2 SIMPLIFY (`checkpoint.js` deferred, `envelope.js`) /
   0 REMOVE-CANDIDATE / 1 TRIAL-KEEP(token) / harness group KEEP
-- Minimal runtime boundary: wiring + Core CLI seam + trial token + trigger
-  rules + types/config/docs/tests; all GovernLoop semantics move to Core
+- Minimal runtime boundary (P1 fixed): three-category split — DSH native /
+  bridge-common (Core may own) / adapter-specific bridge mapping (plugin);
+  only cross-agent bridge-required semantics qualify for Core
+- Structural migration deferred until Product-Closure E2E green + token trial
 - No file changed, no runtime modified
 
 STATUS: RESEARCH_VERIFICATION_COMPLETE
