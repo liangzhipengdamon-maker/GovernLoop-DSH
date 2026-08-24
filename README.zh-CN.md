@@ -62,6 +62,8 @@ dsh plugin --profile <name> add governloop-dsh
 
 也可以通过 `governloop-dsh/cordis.patch.yml` 本地挂载，并将 `GOVERLOOP_SESSION_MANAGER_PATH` 指向 `governloop_session.py`。
 
+**第一次使用？** 按照 [5 步 Quick Start + Troubleshooting](docs/QUICK_START.zh-CN.md) 操作。
+
 完整技术指南：[`governloop-dsh/README.md`](governloop-dsh/README.md)。
 
 ## 安全边界
@@ -82,6 +84,7 @@ DSH 仍处于 developer preview，升级前应重新验证。
 
 ## 更多说明
 
+- Quick Start + Troubleshooting：[`docs/QUICK_START.zh-CN.md`](docs/QUICK_START.zh-CN.md)
 - 产品模型：[`docs/product/DSH-GPTLoop-outer-loop.md`](docs/product/DSH-GPTLoop-outer-loop.md)
 - 验证证据：[`docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md`](docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md)
 - 技术包：[`governloop-dsh/README.md`](governloop-dsh/README.md)
