@@ -93,6 +93,25 @@ test('envelope: instruction demands STRICT JSON (B2 hardening)', () => {
   assert.ok(msg.includes('single line'))
 })
 
+test('envelope: B2 narrow repair — raw newlines inside strings parse, strict validation still applies', () => {
+  // real Round-2 shape: compact JSON, but the rationale string contains literal
+  // newlines (0x0A) instead of escaped \n — the narrow repair escapes them.
+  const raw = '{"verdict":"BLOCK","confidence":"high","rationale":"first line. \n\nevidence\n\n","required_fixes":["fix it"]}'
+  const parsed = extractEnvelope(raw)
+  assert.equal(parsed.ok, true)
+  assert.equal(parsed.envelope.verdict, 'BLOCK')
+  assert.equal(parsed.envelope.rationale, 'first line. \n\nevidence\n\n')
+})
+
+test('envelope: B2 narrow repair does NOT fix semantic errors (still fail-closed)', () => {
+  // enum/verdict corruption is NOT repaired: after control-char escaping the
+  // strict schema validation still rejects the bad verdict.
+  const raw = '{"verdict":"MAYBE","confidence":"high","rationale":"ok. \nmore","required_fixes":[]}'
+  assert.equal(extractEnvelope(raw).ok, false)
+  // missing required field still rejects (no defaults are filled)
+  assert.equal(extractEnvelope('{"verdict":"APPROVE","confidence":"high"}').ok, false)
+})
+
 test('envelope: rejects unknown/malformed/low-confidence', () => {
   assert.equal(extractEnvelope('no envelope here').ok, false)
   assert.equal(extractEnvelope('').ok, false)

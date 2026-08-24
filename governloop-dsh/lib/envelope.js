@@ -83,10 +83,50 @@ function tryParse(text) {
     const start = cleaned.indexOf('{')
     const end = cleaned.lastIndexOf('}')
     if (start < 0 || end <= start) return null
-    return JSON.parse(cleaned.slice(start, end + 1))
+    const candidate = cleaned.slice(start, end + 1)
+    // strict first; B2 narrow normalization (Round 2, real recurrence) only on
+    // strict-parse failure: raw control characters inside JSON string literals
+    // are escaped, then the SAME strict schema validation still applies.
+    try {
+      return JSON.parse(candidate)
+    } catch {
+      return JSON.parse(escapeRawControlCharsInJsonStrings(candidate))
+    }
   } catch {
     return null
   }
+}
+
+/**
+ * B2 narrow deterministic repair (Round 2): ONLY raw control characters
+ * (newline / carriage-return / tab) appearing INSIDE JSON string literals are
+ * escaped (\\n / \\r / \\t), so a semantically-correct review whose strings
+ * accidentally contain literal line breaks can still be validated strictly.
+ * Nothing outside quoted strings is touched; no fields are guessed, no enums
+ * are repaired, no verdict is inferred from prose, and no defaults are filled.
+ * Fail-closed remains: anything else that is not strict JSON still rejects.
+ * @param {string} text
+ * @returns {string}
+ */
+function escapeRawControlCharsInJsonStrings(text) {
+  let out = ''
+  let inString = false
+  let escaped = false
+  for (const ch of text) {
+    if (inString) {
+      if (escaped) { out += ch; escaped = false; continue }
+      if (ch === '\\') { out += ch; escaped = true; continue }
+      if (ch === '"') { inString = false; out += ch; continue }
+      if (ch === '\n') { out += '\\n'; continue }
+      if (ch === '\r') { out += '\\r'; continue }
+      if (ch === '\t') { out += '\\t'; continue }
+      out += ch
+      continue
+    }
+    if (ch === '"') { inString = true; out += ch; continue }
+    out += ch
+  }
+  return out
 }
 
 /**
