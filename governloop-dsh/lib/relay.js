@@ -7,9 +7,24 @@ import path from 'node:path'
 
 export const CHECKPOINT_TYPES = ['NEW_BLOCKER', 'UNEXPECTED_STATE', 'BEFORE_DESTRUCTIVE_ACTION', 'REVIEW_REQUIRED', 'FINAL_VERIFICATION']
 
-/** Resolve the session-manager executable (config > env > PATH). */
+/**
+ * Resolve the session-manager executable (config > env > PATH).
+ * P1 path-contract fix (AGE-65 Product Closure E2E): the session-manager path
+ * and the Neutral-Relay path MUST NOT share GOVERLOOP_RELAY_PATH — the Core
+ * session manager reads that variable to locate neutral_relay.py. The new
+ * explicit name is `sessionManagerPath` / `GOVERLOOP_SESSION_MANAGER_PATH`;
+ * `relayPath` / `GOVERLOOP_RELAY_PATH` remain as DEPRECATED fallbacks so
+ * existing deployments keep working (their semantics are unchanged; the
+ * manager path is never written back into GOVERLOOP_RELAY_PATH anymore).
+ */
 export function relayExecutable(config) {
-  return config.relayPath || process.env.GOVERLOOP_RELAY_PATH || 'governloop_session.py'
+  return (
+    config.sessionManagerPath ||
+    process.env.GOVERLOOP_SESSION_MANAGER_PATH ||
+    config.relayPath || // deprecated alias (AGE-63 config key)
+    process.env.GOVERLOOP_RELAY_PATH || // deprecated alias
+    'governloop_session.py'
+  )
 }
 
 /** Resolve the GovernLoop session state dir (config > env > /tmp). */
@@ -17,10 +32,13 @@ export function sessionStateDir(config) {
   return config.stateDir || process.env.GOVERLOOP_STATE_DIR || '/tmp'
 }
 
-/** Environment passed to every session-manager invocation (passed through, never overridden). */
+/** Environment passed to every session-manager invocation (passed through, never overridden).
+ *  The manager path is the spawn target and is NOT written back as an env var:
+ *  writing it as GOVERLOOP_RELAY_PATH corrupted the child's Neutral-Relay
+ *  lookup (the Core CLI reads that variable for neutral_relay.py) — P1
+ *  path-contract collision fix. */
 export function managerEnv(config) {
   const env = { ...process.env }
-  if (config.relayPath) env.GOVERLOOP_RELAY_PATH = config.relayPath
   if (config.stateDir) env.GOVERLOOP_STATE_DIR = config.stateDir
   if (config.cdpPort) env.GOVERLOOP_CDP_PORT = String(config.cdpPort)
   return env
@@ -57,9 +75,21 @@ export function runSessionManager(args, options) {
   })
 }
 
+/**
+ * Session-id extraction from the session manager's output.
+ * P1 session-id contract fix (AGE-65 Product Closure E2E): accepts the
+ * canonical Core CLI formats — `NEW session <id>` (new_session), `REUSE
+ * session <id>` (resumed session), `session id: <id>` (status) — AND the
+ * legacy uppercase `SESSION: <id>` used by the AGE-63 stub relay, so the
+ * adapter parses whatever the real Core CLI emits.
+ */
 export function extractSessionId(stdout) {
-  const m = /SESSION:\s*(\S+)/.exec(stdout || '')
-  return m ? m[1] : null
+  if (typeof stdout !== 'string') return null
+  for (const line of stdout.split('\n')) {
+    const m = /^\s*(?:SESSION|session id|NEW session|REUSE session)\s*:?\s+(\S+)/.exec(line)
+    if (m) return m[1]
+  }
+  return null
 }
 
 /**

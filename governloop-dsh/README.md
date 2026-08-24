@@ -38,13 +38,15 @@ dsh plugin --profile <name> add governloop-dsh
 ```
 
 Or mount locally (dev): `dsh --profile <name> --patch <repo>/governloop-dsh/cordis.patch.yml "…"`
-with `GOVERLOOP_RELAY_PATH` pointing at `governloop_session.py`.
+with `GOVERLOOP_SESSION_MANAGER_PATH` (or `config.sessionManagerPath`) pointing
+at `governloop_session.py`.
 
 ### Config (`cordis.patch.yml` row)
 
 | Key | Default | Meaning |
 |---|---|---|
-| `relayPath` | env `GOVERLOOP_RELAY_PATH` | session-manager executable |
+| `sessionManagerPath` | env `GOVERLOOP_SESSION_MANAGER_PATH` | session-manager executable (preferred; P1 path-contract fix) |
+| `relayPath` | env `GOVERLOOP_RELAY_PATH` | **DEPRECATED** alias for the session-manager path. `GOVERLOOP_RELAY_PATH` is also the Core CLI's Neutral-Relay variable — never point it at the session manager |
 | `stateDir` | env `GOVERLOOP_STATE_DIR` | GovernLoop session state dir |
 | `cdpPort` | env `GOVERLOOP_CDP_PORT` | CDP port passthrough |
 | `tokenTtlMs` | 600000 | one-shot retry token expiry |
@@ -64,7 +66,7 @@ with `GOVERLOOP_RELAY_PATH` pointing at `governloop_session.py`.
 ## Tests
 
 ```text
-node --test governloop-dsh/tests/unit.test.mjs governloop-dsh/tests/unit-gate.test.mjs  # 21 unit tests (classifier/envelope/token/gate-latch-provider)
+node --test governloop-dsh/tests/unit.test.mjs governloop-dsh/tests/unit-gate.test.mjs governloop-dsh/tests/unit-relay.test.mjs  # 25 unit tests (classifier/envelope/token/gate-latch-provider/relay-CLI-contract)
 DSH_BIN=<pinned dsh binary> node governloop-dsh/tests/harness/run-e2e.mjs
 ```
 
