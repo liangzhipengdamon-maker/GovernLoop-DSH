@@ -46,7 +46,7 @@ at `governloop_session.py`.
 | Key | Default | Meaning |
 |---|---|---|
 | `sessionManagerPath` | env `GOVERLOOP_SESSION_MANAGER_PATH` | session-manager executable (preferred; P1 path-contract fix) |
-| `relayPath` | env `GOVERLOOP_RELAY_PATH` | **DEPRECATED** alias for the session-manager path. `GOVERLOOP_RELAY_PATH` is also the Core CLI's Neutral-Relay variable — never point it at the session manager |
+| `relayPath` | (config only) | **DEPRECATED config-only** alias for the session-manager path. `GOVERLOOP_RELAY_PATH` is **no longer** a session-manager fallback — it belongs exclusively to Core's Neutral Relay |
 | `stateDir` | env `GOVERLOOP_STATE_DIR` | GovernLoop session state dir |
 | `cdpPort` | env `GOVERLOOP_CDP_PORT` | CDP port passthrough |
 | `tokenTtlMs` | 600000 | one-shot retry token expiry |

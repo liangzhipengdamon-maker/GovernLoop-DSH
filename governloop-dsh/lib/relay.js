@@ -9,20 +9,20 @@ export const CHECKPOINT_TYPES = ['NEW_BLOCKER', 'UNEXPECTED_STATE', 'BEFORE_DEST
 
 /**
  * Resolve the session-manager executable (config > env > PATH).
- * P1 path-contract fix (AGE-65 Product Closure E2E): the session-manager path
- * and the Neutral-Relay path MUST NOT share GOVERLOOP_RELAY_PATH — the Core
- * session manager reads that variable to locate neutral_relay.py. The new
- * explicit name is `sessionManagerPath` / `GOVERLOOP_SESSION_MANAGER_PATH`;
- * `relayPath` / `GOVERLOOP_RELAY_PATH` remain as DEPRECATED fallbacks so
- * existing deployments keep working (their semantics are unchanged; the
- * manager path is never written back into GOVERLOOP_RELAY_PATH anymore).
+ * P1 path-contract fix (AGE-65 Product Closure E2E, review round 2): the
+ * session-manager path and the Neutral-Relay path MUST NOT share
+ * GOVERLOOP_RELAY_PATH — that variable belongs exclusively to the Core session
+ * manager's Neutral-Relay resolution. The session manager is resolved ONLY
+ * from `sessionManagerPath` / `GOVERLOOP_SESSION_MANAGER_PATH`; `relayPath`
+ * remains as a DEPRECATED plugin-config-ONLY alias (never the env var), so
+ * legacy deployments keep working while GOVERLOOP_RELAY_PATH can never be
+ * misread as the session manager.
  */
 export function relayExecutable(config) {
   return (
     config.sessionManagerPath ||
     process.env.GOVERLOOP_SESSION_MANAGER_PATH ||
-    config.relayPath || // deprecated alias (AGE-63 config key)
-    process.env.GOVERLOOP_RELAY_PATH || // deprecated alias
+    config.relayPath || // legacy plugin-config alias only (never GOVERLOOP_RELAY_PATH)
     'governloop_session.py'
   )
 }

@@ -9,9 +9,39 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { extractSessionId, runSessionManager } from '../lib/relay.js'
+import { extractSessionId, managerEnv, relayExecutable, runSessionManager } from '../lib/relay.js'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+test('relayExecutable: GOVERLOOP_RELAY_PATH is NEVER selected as the session manager (P1)', () => {
+  const prev = process.env.GOVERLOOP_RELAY_PATH
+  try {
+    process.env.GOVERLOOP_RELAY_PATH = '/opt/neutral_relay.py'
+    delete process.env.GOVERLOOP_SESSION_MANAGER_PATH
+    // the Neutral-Relay-only env var must not be misread as the session manager
+    assert.equal(relayExecutable({}), 'governloop_session.py')
+  } finally {
+    if (prev === undefined) delete process.env.GOVERLOOP_RELAY_PATH
+    else process.env.GOVERLOOP_RELAY_PATH = prev
+  }
+})
+
+test('relayExecutable/managerEnv: legacy config.relayPath fallback never touches GOVERLOOP_RELAY_PATH (P1)', () => {
+  const prev = process.env.GOVERLOOP_RELAY_PATH
+  try {
+    process.env.GOVERLOOP_RELAY_PATH = '/opt/neutral_relay.py' // Core-owned, must pass through untouched
+    const config = { relayPath: '/legacy/governloop_session.py' }
+    // legacy plugin-config fallback still resolves the session manager...
+    assert.equal(relayExecutable(config), '/legacy/governloop_session.py')
+    // ...and managerEnv() preserves the existing Core-owned relay variable verbatim
+    const env = managerEnv(config)
+    assert.equal(env.GOVERLOOP_RELAY_PATH, '/opt/neutral_relay.py')
+    assert.equal(Object.hasOwn(env, 'GOVERLOOP_SESSION_MANAGER_PATH'), false)
+  } finally {
+    if (prev === undefined) delete process.env.GOVERLOOP_RELAY_PATH
+    else process.env.GOVERLOOP_RELAY_PATH = prev
+  }
+})
 
 // Canonical formats taken from GovernLoop core governloop_session.py:
 //   new_session:   f"NEW session {sid} (repo=… task=… src=…)"        (line 250)
