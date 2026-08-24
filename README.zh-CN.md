@@ -82,6 +82,8 @@ DSH 仍处于 developer preview，升级前应重新验证。
 
 ## 更多说明
 
+GPT Web 是这个项目的持续外循环工作区：DSH 专注本地执行时，GPT 保留项目推理和独立审查上下文。GitHub、Linear 或文档工具接入后，GPT 可以把这些上下文带进同一条项目对话，但不会取代它们各自的 authority。
+
 - 产品模型：[`docs/product/DSH-GPTLoop-outer-loop.md`](docs/product/DSH-GPTLoop-outer-loop.md)
 - 验证证据：[`docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md`](docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md)
 - 技术包：[`governloop-dsh/README.md`](governloop-dsh/README.md)
