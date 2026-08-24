@@ -34,6 +34,20 @@ DeepSeek Harness resumes
 
 The design rule is simple: **native first**. If DSH already provides a capability, GovernLoop-DSH uses it instead of rebuilding it.
 
+## Why ChatGPT Web matters
+
+The important part is not just “another model call.” It is the **existing ChatGPT Web conversation where the human already thinks about the project**: architecture, trade-offs, research, review history, product decisions, and the context accumulated across many turns.
+
+Local coding agents are excellent at operating the machine. ChatGPT Web is often where the higher-level project conversation already lives. GovernLoop-DSH connects those two working surfaces instead of forcing the human to act as the clipboard between them.
+
+This is especially useful for:
+
+- **Solo builders and one-person companies (OPCs):** one person may be product owner, architect, reviewer, researcher, and operator at the same time. A persistent external review loop reduces context switching and gives the local agent a second reasoning surface without adding another orchestration stack.
+- **Vibe coding workflows:** implementation can move extremely fast, which makes independent checkpoints more valuable, not less. The bridge lets the local agent keep moving while critical decisions, risky actions, and unexpected states are surfaced to the ChatGPT conversation the builder already uses.
+- **Professional engineering teams:** the same separation is useful when execution and review should not collapse into one agent context. A local runtime can remain authoritative for code, tests, sandboxing, and permissions while an external conversation provides an independent review surface. Any use with proprietary code or evidence must still follow the organization’s security and data-handling policies.
+
+The point is not to make ChatGPT Web the execution engine. The point is to let **execution stay local while project reasoning and independent review remain connected**.
+
 ## Why it matters
 
 ### 1. It complements DSH instead of competing with it
