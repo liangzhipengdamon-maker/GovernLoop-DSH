@@ -1,71 +1,144 @@
 # GovernLoop-DSH
 
-A thin native [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH)
-plugin that automatically connects DSH agents to GovernLoop's independent ChatGPT
-review — with checkpoints and evidence.
+**DSH runs the agent. GovernLoop-DSH gives it an independent project brain to consult.**
+
+A thin native [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH) plugin that connects DSH agents to your existing ChatGPT Web conversation for independent review — without replacing DSH's native runtime, sandbox, sessions, subagents, or approval system.
+
+> **No second agent framework. No duplicated sandbox. No duplicated session system. Just the missing review bridge.**
+
+## What gap does it fill?
+
+DeepSeek Harness already provides the execution framework: sessions, subagents, tools, sandboxing, permissions, approval, persistence, and resume.
+
+What it does not natively provide is a reliable bridge from a running DSH agent to an already-open ChatGPT Web conversation that can act as an independent reviewer with the project context you already keep there.
+
+GovernLoop-DSH fills only that gap:
 
 ```text
 DeepSeek Harness
         ↓
-GovernLoop-DSH          thin native Cordis plugin (this repo)
+critical checkpoint
         ↓
-GovernLoop Core         unchanged, agent-agnostic
+GovernLoop-DSH          thin native Cordis adapter
         ↓
-session / checkpoints / evidence / Neutral Relay
+GovernLoop Core         session / evidence / Neutral Relay
         ↓
-independent ChatGPT review
+existing ChatGPT Web conversation
         ↓
-review read-back
+independent review + read-back
+        ↓
+human authority when required
         ↓
 DeepSeek Harness resumes
 ```
 
-## Status
+The design rule is simple: **native first**. If DSH already provides a capability, GovernLoop-DSH uses it instead of rebuilding it.
+
+## Why it matters
+
+### 1. It complements DSH instead of competing with it
+
+GovernLoop-DSH does not become another orchestration layer. DSH stays authoritative for execution, sandboxing, permissions, sessions, subagents, and native approval. The adapter only translates DSH lifecycle events into the external review bridge and carries evidence and review results back.
+
+### 2. It is verified in the real loop
 
 **Product Closure: VERIFIED (2026-08-24).**
 
-The thin adapter is implemented and verified end-to-end in a real environment
-(real Chrome/CDP + bound ChatGPT Web conversation + real Neutral Relay):
-S1 bridge closure (deny → review → read-back → envelope → PO → one-shot token →
-exact retry), S2 authorization, and S3 fail-closed scenarios (relay failure, PO
-decline, missing attachment) all pass. Evidence:
-`docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md`.
+The full path has been tested end-to-end with real DSH + real GovernLoop Neutral Relay + Chrome/CDP + a bound ChatGPT Web conversation:
 
-Research history: AGE-60 (research), AGE-61 (architecture), AGE-65 (validation
-slices) — see `docs/research/` and `docs/architecture/`. These are **historical
-records, not the current runtime authority**.
+- real message delivery and evidence attachments;
+- complete ChatGPT response read-back;
+- exact retry authorization after explicit human approval;
+- fail-closed relay failure, PO decline, and missing-attachment paths;
+- backgrounded ChatGPT tab operation;
+- no automatic resend;
+- automatic recovery from a real truncation-shaped response during production-default E2E.
 
-## Install
+Verification record: [`docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md`](docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md).
 
-The plugin package lives in [`governloop-dsh/`](governloop-dsh/); its README has
-the full install, config, and test instructions.
+### 3. It removes the human clipboard relay
 
-Minimal prerequisites:
+Without a bridge, the common workflow is manual:
 
-- Pinned `@deepseek-ai/dsh@0.1.1-rc.2` (developer preview — verify before upgrades).
-- [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) with the
-  Neutral Relay and its session manager (`governloop_session.py`).
-- Chrome running with CDP (`--remote-debugging-port=9233`) and an open, bound
-  ChatGPT conversation.
+```text
+DSH stops → human copies context → opens ChatGPT → explains the issue
+→ copies the answer back → tells DSH what happened → agent continues
+```
 
-Mount the plugin row via the bundle patch (`governloop-dsh/cordis.patch.yml`) or
-`dsh plugin --profile <name> add governloop-dsh`, with
-`GOVERLOOP_SESSION_MANAGER_PATH` pointing at `governloop_session.py`.
+With GovernLoop-DSH:
 
-## Principles
+```text
+DSH → checkpoint → ChatGPT Web → review read-back → DSH resumes
+```
 
-- **Thin integration.** The plugin translates DSH lifecycle events into GovernLoop
-  checkpoint triggers and carries evidence + review read-back. It never re-implements
-  GovernLoop checkpoint definitions, evidence safety rules, Neutral Relay mechanics,
-  or authorization boundaries.
-- **GovernLoop Core stays independent.** Core remains agent-agnostic (WorkBuddy,
-  OpenCode, Claude Code, Codex, DSH, …). This repository holds only the DSH-side
-  integration.
-- **DSH is developer preview.** Versions are pinned and claims are verified against
-  DeepSeek Harness source/docs before use.
+Only critical checkpoints are sent. Ordinary progress stays local, evidence is attached automatically, and the response returns to the same DSH workflow without a repeated copy/paste handoff.
+
+### 4. Near-zero additional DSH model-token overhead
+
+GovernLoop-DSH does **not** insert another LLM into DSH's internal reasoning loop. Classification, gating, evidence handling, transport, and retry control are deterministic/local operations. The external review happens in the ChatGPT Web conversation you already use.
+
+So the governance plumbing itself adds **near-zero additional DSH model-token overhead**. This does not mean the external ChatGPT review is token-free; it means the adapter does not require an extra DSH model reasoning loop just to operate the bridge.
+
+## DSH alone vs. DSH + GovernLoop-DSH
+
+| Capability | DSH alone | DSH + GovernLoop-DSH |
+|---|---|---|
+| Agent execution | ✅ Native | ✅ Native |
+| Sessions / subagents | ✅ Native | ✅ Native |
+| Sandbox / permissions | ✅ Native | ✅ Native |
+| Native approval | ✅ Native | ✅ Native |
+| Existing ChatGPT Web project context | Manual handoff | ✅ Connected |
+| Independent external review | Manual | ✅ Automatic checkpoint |
+| Evidence delivery | Manual copy/paste | ✅ Automatic attachments |
+| Review read-back | Manual copy/paste | ✅ Automatic |
+| Extra DSH model loop for bridge mechanics | — | **Near-zero** |
+| Relay / malformed-response failure | Human-dependent | **Fail closed** |
+
+## Quick start
+
+The plugin package lives in [`governloop-dsh/`](governloop-dsh/). Its README contains the full install, configuration, and test instructions.
+
+Prerequisites:
+
+- pinned `@deepseek-ai/dsh@0.1.1-rc.2`;
+- [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) with the Neutral Relay and session manager;
+- Chrome running with CDP (`--remote-debugging-port=9233`);
+- an open ChatGPT conversation bound to the GovernLoop session.
+
+Install / mount:
+
+```text
+dsh plugin --profile <name> add governloop-dsh
+```
+
+Or mount locally with `governloop-dsh/cordis.patch.yml` and set `GOVERLOOP_SESSION_MANAGER_PATH` to `governloop_session.py`.
+
+Full package guide: [`governloop-dsh/README.md`](governloop-dsh/README.md).
+
+## Safety boundary
+
+- ChatGPT review is advisory evidence, never execution authority.
+- Explicit human authorization is required where the current DSH integration requires it.
+- Failures stay blocked; no automatic resend.
+- DSH native sandbox, permission, session, and approval behavior remains authoritative.
+- GovernLoop-DSH stays thin; Core transport and evidence safety rules remain in GovernLoop Core.
+
+## Compatibility
+
+Current verified compatibility:
+
+| governloop-dsh | @deepseek-ai/dsh | Status |
+|---|---|---|
+| 0.1.0 | 0.1.1-rc.2 | Product Closure VERIFIED |
+
+DSH is developer preview, so upgrades should be re-verified before use.
+
+## Research and verification history
+
+AGE-60 (research), AGE-61 (architecture), and AGE-65 validation slices are preserved under `docs/` as historical evidence. They are **not current runtime authority**.
 
 ## License
 
 [Apache-2.0](LICENSE).
 
-See `AGENTS.md` for the working rules in this repository.
+See [`AGENTS.md`](AGENTS.md) for repository working rules.
