@@ -27,9 +27,11 @@ test('relayExecutable: GOVERLOOP_RELAY_PATH is NEVER selected as the session man
 })
 
 test('relayExecutable/managerEnv: legacy config.relayPath fallback never touches GOVERLOOP_RELAY_PATH (P1)', () => {
-  const prev = process.env.GOVERLOOP_RELAY_PATH
+  const prevRelay = process.env.GOVERLOOP_RELAY_PATH
+  const prevManager = process.env.GOVERLOOP_SESSION_MANAGER_PATH
   try {
     process.env.GOVERLOOP_RELAY_PATH = '/opt/neutral_relay.py' // Core-owned, must pass through untouched
+    delete process.env.GOVERLOOP_SESSION_MANAGER_PATH // isolate: only the legacy config may resolve
     const config = { relayPath: '/legacy/governloop_session.py' }
     // legacy plugin-config fallback still resolves the session manager...
     assert.equal(relayExecutable(config), '/legacy/governloop_session.py')
@@ -38,8 +40,10 @@ test('relayExecutable/managerEnv: legacy config.relayPath fallback never touches
     assert.equal(env.GOVERLOOP_RELAY_PATH, '/opt/neutral_relay.py')
     assert.equal(Object.hasOwn(env, 'GOVERLOOP_SESSION_MANAGER_PATH'), false)
   } finally {
-    if (prev === undefined) delete process.env.GOVERLOOP_RELAY_PATH
-    else process.env.GOVERLOOP_RELAY_PATH = prev
+    if (prevRelay === undefined) delete process.env.GOVERLOOP_RELAY_PATH
+    else process.env.GOVERLOOP_RELAY_PATH = prevRelay
+    if (prevManager === undefined) delete process.env.GOVERLOOP_SESSION_MANAGER_PATH
+    else process.env.GOVERLOOP_SESSION_MANAGER_PATH = prevManager
   }
 })
 

@@ -66,7 +66,7 @@ at `governloop_session.py`.
 ## Tests
 
 ```text
-node --test governloop-dsh/tests/unit.test.mjs governloop-dsh/tests/unit-gate.test.mjs governloop-dsh/tests/unit-relay.test.mjs  # 25 unit tests (classifier/envelope/token/gate-latch-provider/relay-CLI-contract)
+node --test governloop-dsh/tests/unit.test.mjs governloop-dsh/tests/unit-gate.test.mjs governloop-dsh/tests/unit-relay.test.mjs  # 27 unit tests (classifier/envelope/token/gate-latch-provider/relay-CLI-contract)
 DSH_BIN=<pinned dsh binary> node governloop-dsh/tests/harness/run-e2e.mjs
 ```
 
