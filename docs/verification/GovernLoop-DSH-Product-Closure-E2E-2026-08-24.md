@@ -102,3 +102,41 @@ Decision options (for PO): (a) accept fail-closed + resubmit a NEW checkpoint on
 STATUS: VERIFICATION_RUN_COMPLETE (Round 2)
 ARCHITECTURE_ADOPTION: NOT_AUTHORIZED
 VERDICT: B1/B2 CLOSED — S1/S2 VERIFIED, S3 VERIFIED, B4 OPEN (PO decision)
+
+---
+
+# Round 3 — after B4 (GPT-reply-truncation fix)
+
+**Date:** 2026-08-24
+**Fixes under test:**
+- **B4** — GovernLoop Core `fix/b4-reply-truncation` (PR #110, stacked on #109): completion features (stop gone + copy/rate icons present) gate finalize (F1); settle backstop 4s→8s / 3→4 reads, env-tunable (F2); post-finalize confirmation reads, revocable (F3); `<output>.diag.jsonl` diagnostics + opt-in SSE tail (F4); token-free screenshot evidence when `GOVERLOOP_SCREENSHOT_DIR` set (F6).
+
+## Round 3 results (real environment; plugin = main 5282764 + B2; relay = B1+B4)
+
+| Scenario | Result |
+|---|---|
+| S1 bridge-closure | **PASS** — exit 0, E2E-COMPLETE, full lifecycle through **token-allowed** (exact retry once), adapterRequests==3, response file contains a review envelope |
+| S2 authorization | **PASS** — PO (userQuestions ADR-13 file) → one-shot token → exact retry → DSH resumed |
+| S3a relay-fail | **PASS** — failed, no retry, no resend |
+| S3b po-decline | **PASS** — review delivered + answered, envelope parsed, PO declined → po-not-approved, no retry |
+| S3c attach-missing | **PASS** — refused before send, no third thread message |
+
+**ALL PRODUCT CLOSURE E2E SCENARIOS PASS (driver exit 0).**
+
+## B4 evidence
+
+- `finalized` diagnostics for S1/S3b: `stopPresent=false, hasCopyRate=true` at finalize — the UI completion gate drove finalization (not the fragile text-stable signal).
+- `visibilityState=hidden` for both — the full loop (send → read-back → finalize → token retry) ran while the ChatGPT tab was **backgrounded**, confirming background-safe operation.
+- SSE tail: 0 events captured (`Network.eventSourceMessageReceived` never fired in this CDP setup — likely non-SSE transport or domain mismatch); DOM-state diagnostics remain the working signal. Follow-up: investigate whether ChatGPT's stream surfaces via WebSocket/fetch events if SSE diagnostics are wanted.
+- Screenshot evidence: one `*-finalized.png` captured (same request id across scenarios overwrites the shared name) — token-free audit proof of the finalized state.
+
+## Classification (Round 3)
+
+- **B1 / B2 / B4: CLOSED & VERIFIED in the real loop**
+- **S1/S2/S3: VERIFIED (all green, single run)**
+- **B4 flakiness: not observed this run** — completion-feature gate prevents premature finalize; genuine truncation (if any) still fails closed
+- **Product Closure status:** the full S1→S2→S3 loop is green in a real environment with the ChatGPT tab backgrounded. Per the agreed PO criterion (Round 2 decision), this supports declaring the loop closed; final Product Closure judgment stays with the PO.
+
+STATUS: VERIFICATION_RUN_COMPLETE (Round 3)
+ARCHITECTURE_ADOPTION: NOT_AUTHORIZED
+VERDICT: S1/S2/S3 ALL GREEN — B1/B2/B4 CLOSED; Product Closure judgment pending PO
