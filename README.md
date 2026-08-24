@@ -14,9 +14,11 @@ https://github.com/user-attachments/assets/60ece667-3e4c-46cd-8b83-1dea15ec7e08
 
 > **Not using DeepSeek Harness?** Use [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) directly for WorkBuddy, OpenCode, Claude Code, Codex, or other agents.
 
-## Why GovernLoop
+## Why GovernLoop-DSH
 
-Local coding agents are fast at execution, but the wider project context often lives elsewhere. GovernLoop bridges the critical checkpoints instead of making the human copy context back and forth.
+DeepSeek Harness already provides strong native execution governance: sandbox modes constrain filesystem effects, and per-session approval policies decide whether specific actions may proceed, with unavailable approval paths failing closed.
+
+DSH-GPTLoop does not replace that internal framework. It adds an external GPT Web outer loop for persistent project reasoning, independent review, and cross-tool context. When GitHub, Linear, or Docs are connected, GPT can bring their context into the same project conversation while each system keeps its own authority.
 
 - **No clipboard relay.** Review requests and relevant evidence can move to GPT Web and the result can return to the same DSH workflow.
 - **Keep the outer loop persistent.** GPT Web can retain project reasoning and independent review while DSH stays focused on local execution.
@@ -81,8 +83,6 @@ Full package guide: [`governloop-dsh/README.md`](governloop-dsh/README.md).
 DSH is developer preview, so upgrades should be re-verified before use.
 
 ## Learn more
-
-GPT Web is the persistent outer-loop workspace: it keeps project reasoning and independent review connected while DSH executes locally. When tools such as GitHub, Linear, or Docs are connected, GPT can bring their context into the same project conversation without replacing their authority.
 
 - Product model: [`docs/product/DSH-GPTLoop-outer-loop.md`](docs/product/DSH-GPTLoop-outer-loop.md)
 - Verification evidence: [`docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md`](docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md)
