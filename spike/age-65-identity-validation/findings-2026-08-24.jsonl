@@ -1,0 +1,5 @@
+{"id":"S1-created","sessionId":"session-1","header":{"version":0,"id":"session-1","cwd":"/Users/Zhuanz/Documents/02_other_projects/GovernLoop-workspace/repos/GovernLoop-DSH","parentSession":null}}
+{"id":"S2-reload-error","error":"Cannot read properties of undefined (reading 'version')"}
+{"id":"S3-fork","newId":"session-2","newIdIsDifferent":true,"parentSession":"session-1","seedLength":7}
+{"id":"S4-resume","sameSessionId":true,"sessionIdAfter":"a65-agent-7083bdc5-aeed-41f7-b4e0-2d560cc7e079","seqBefore":3,"seqAfter":4,"agentIdEqualsSessionId":true}
+{"id":"S5-lineage-metadata","forkParentLink":true,"note":"full subagent-delegation delegationDepth monotone check flagged for follow-up (needs a delegated child / scripted model)"}
