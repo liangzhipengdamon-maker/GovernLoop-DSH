@@ -51,6 +51,55 @@ DSH 继续做它最擅长的事情：本地执行、工具调用、测试、沙�
 
 目标不是让 GPT Web 变成执行引擎，而是让**执行留在本地，同时让项目级推理与独立审查保持连接**。
 
+## GPT Web 作为项目外循环
+
+GPT Web 不只是一个 review surface。**当相关工具已连接并获得授权时**，它可以横跨开发全生命周期，把多个系统的项目上下文带进同一个持续存在的推理工作区。
+
+```text
+                      GPT Web
+                 持续项目外循环
+
+          研究 / 产品 / 架构 / 审查
+                         │
+          ┌──────────────┼──────────────┐
+          ↓              ↓              ↓
+       Linear          GitHub       Docs / Drive
+    issues / planning   PR / CI      specs / evidence
+          │              │              │
+          └──────────────┼──────────────┘
+                         ↓
+                    DSH-GPTLoop
+                         ↓
+                  DeepSeek Harness
+                     本地执行
+                         ↓
+                 code / tools / tests
+```
+
+真实的软件项目远不只是“生成代码”：
+
+**Idea / Research → Product Decision → Issue → Implementation → Test → Review → PR → CI → Merge → Release → Documentation → Follow-up**
+
+DSH 最擅长的是其中高速的本地执行部分。GPT Web 则可以在相关工具可用时，把外围的项目上下文串起来，例如：研究与产品推理、Linear issue 与 blocker、GitHub 仓库 / PR / CI 证据、文档、release-readiness 审查，以及后续行动。
+
+但这**不会**把这些系统的权威转移给 GPT Web：
+
+- GitHub 仍然是仓库内容、commit、PR 和仓库生命周期状态的权威来源。
+- 使用 Linear 时，Linear 仍然是 issue / project tracking 的权威来源。
+- CI 仍然只是 verification evidence；CI 变绿本身并不等于 Merge / Release 授权。
+- DSH 仍然对其原生 runtime、执行、sandbox、permission、session 和 approval 行为保持权威。
+- 需要人类授权的关键生命周期动作，仍由人保留最终授权权力。
+
+GPT Web 不替代这些系统。**它连接它们的上下文。**
+
+> **本地 Agent 知道“现在正在做什么”；外循环知道“这个项目为什么要这样做”。**
+
+而随着 Coding Agent 越来越快，这种分工反而更有价值：
+
+> **内循环越快，外循环越重要。**
+
+详细说明：[`docs/product/DSH-GPTLoop-outer-loop.md`](docs/product/DSH-GPTLoop-outer-loop.md)。
+
 ## 它补了 DSH 的什么缺口？
 
 DeepSeek Harness 已经提供了完整的执行框架。它原生缺少的是：把运行中的 DSH Agent 可靠地连接到一个已经打开、并且保有项目上下文的 GPT Web 会话。
@@ -131,6 +180,7 @@ DSH-GPTLoop **不会**在 DSH 的内部推理循环里再插入一个 LLM。分�
 | 原生审批 | ✅ 原生 | ✅ 原生 |
 | 已有 GPT Web 项目上下文 | 人工转交 | ✅ 已连接 |
 | 持续外循环项目推理 | 人工 | ✅ 已连接 |
+| 跨工具项目上下文（已连接时） | 分散/人工 | ✅ 可进入外循环 |
 | 独立外部审查 | 人工 | ✅ 自动 checkpoint |
 | 证据交付 | 人工复制/粘贴 | ✅ 自动附件 |
 | 审查结果回读 | 人工复制/粘贴 | ✅ 自动 |
@@ -164,6 +214,7 @@ dsh plugin --profile <name> add governloop-dsh
 - 当前 DSH 集成要求人类授权的地方，必须获得明确的人类授权。
 - 失败保持 blocked；不自动重发。
 - DSH 原生 sandbox、permission、session 和 approval 行为仍然具有权威性。
+- 已连接的项目工具继续保留各自的权威；DSH-GPTLoop 不会把 GPT Web 变成通用执行权威或生命周期授权源。
 - DSH-GPTLoop 保持轻量；Core transport 与 evidence safety 规则继续归 GovernLoop Core 所有。
 
 ## 兼容性
