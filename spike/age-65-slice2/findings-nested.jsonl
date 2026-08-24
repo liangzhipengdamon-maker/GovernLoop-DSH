@@ -1,0 +1,8 @@
+{"id":"P-root","sessionId":"session-62deb6d0-6e6d-49b4-ac2f-bfdd65aed361","agentId":"session-62deb6d0-6e6d-49b4-ac2f-bfdd65aed361","header":{"parentSession":null,"delegationDepth":null}}
+{"id":"Q1-child-created","childSessionId":"a329e9d0-ff70-458c-b2d3-82311f3a9c94","distinctFromParent":true,"childAgentIdEqualsSession":true}
+{"id":"Q2-child-live-header","parentSession":"session-62deb6d0-6e6d-49b4-ac2f-bfdd65aed361","delegationDepth":1}
+{"id":"Q1-child-settled","stopReason":"completed","outputText":"child-done"}
+{"id":"Q2-child-persisted-header","parentSession":"session-62deb6d0-6e6d-49b4-ac2f-bfdd65aed361","delegationDepth":1,"eventCount":32}
+{"id":"Q5-child-resume","sameSessionId":true,"parentSession":"session-62deb6d0-6e6d-49b4-ac2f-bfdd65aed361","delegationDepth":1,"agentIdEqualsSession":true}
+{"id":"Q4-session-fork","sourceId":"session-1","forkId":"session-2","parentSession":"session-1","seedLength":7,"delegationDepth":null}
+{"id":"Q6-grandchild","grandchildSessionId":"3aa20702-55a1-4326-a98d-360bbbde8074","distinctFromAll":true,"parentSession":"a329e9d0-ff70-458c-b2d3-82311f3a9c94","delegationDepth":2,"descriptor":{"version":2,"mode":"continuable","provider":"spawn","label":"delegate grandchild","agentProvider":"mock","agentModel":"mock-1"},"settledCompletedTurn":true,"persistedEventCount":23,"finalOutputText":"child-done"}

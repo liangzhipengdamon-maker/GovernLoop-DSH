@@ -1,0 +1,7 @@
+{"id":"P-root","sessionId":"session-0a100a50-3081-4f3b-955b-92ccf80bb0f3","agentId":"session-0a100a50-3081-4f3b-955b-92ccf80bb0f3","header":{"parentSession":null,"delegationDepth":null}}
+{"id":"Q1-child-created","childSessionId":"3c2554d1-9439-421a-99bf-de497c2cea13","distinctFromParent":true,"childAgentIdEqualsSession":true}
+{"id":"Q2-child-live-header","parentSession":"session-0a100a50-3081-4f3b-955b-92ccf80bb0f3","delegationDepth":1}
+{"id":"Q1-child-settled","stopReason":"completed","outputText":"child-done"}
+{"id":"Q2-child-persisted-header","parentSession":"session-0a100a50-3081-4f3b-955b-92ccf80bb0f3","delegationDepth":1,"eventCount":22}
+{"id":"Q5-child-resume","sameSessionId":true,"parentSession":"session-0a100a50-3081-4f3b-955b-92ccf80bb0f3","delegationDepth":1,"agentIdEqualsSession":true}
+{"id":"Q4-session-fork","sourceId":"session-1","forkId":"session-2","parentSession":"session-1","seedLength":7,"delegationDepth":null}
