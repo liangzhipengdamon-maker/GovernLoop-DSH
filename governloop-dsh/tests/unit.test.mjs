@@ -86,6 +86,13 @@ test('envelope: build message includes the marker and parses back', () => {
   assert.equal(parsed.envelope.verdict, 'APPROVE')
 })
 
+test('envelope: instruction demands STRICT JSON (B2 hardening)', () => {
+  const msg = buildCheckpointMessage('CHECKPOINT: X')
+  assert.ok(msg.includes('MUST NOT contain literal newlines'))
+  assert.ok(msg.includes('No Markdown code fences'))
+  assert.ok(msg.includes('single line'))
+})
+
 test('envelope: rejects unknown/malformed/low-confidence', () => {
   assert.equal(extractEnvelope('no envelope here').ok, false)
   assert.equal(extractEnvelope('').ok, false)

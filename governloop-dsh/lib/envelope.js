@@ -12,20 +12,33 @@ export const ENVELOPE_MARKER = 'REVIEW_ENVELOPE:'
 /**
  * Build the envelope instruction appended to every destructive checkpoint
  * message so ChatGPT answers structurally rather than in free prose.
+ * B2 hardening (AGE-65 Product Closure, Round 1): the instruction now demands
+ * STRICT JSON — the parser stays strict and fail-closed, so the review prompt
+ * must tell the reviewer exactly which serialization mistakes would block the
+ * action. No parser relaxation is added (decided: only if B2 recurs).
  * @param {string} checkpointContext human/checkpoint context already in the message
  * @returns {string} the full checkpoint message text (context + envelope request)
  */
 export function buildCheckpointMessage(checkpointContext) {
   return `${checkpointContext}
 
-Please answer ONLY inside the review envelope below. Fill in the JSON exactly;
-do not add extra fields. Verdict must be one of APPROVE, BLOCK, ADVISE.
+Please answer ONLY inside the review envelope below. The envelope MUST be
+STRICT JSON (parsed programmatically; any deviation blocks the action):
+
+- JSON strings MUST NOT contain literal newlines or carriage returns: write
+  escaped \\n (backslash-n) instead.
+- No Markdown code fences (no triple backticks), no text before or after the
+  envelope.
+- "rationale": one single line, 1-3 sentences.
+- "required_fixes": every item on its own single line (no embedded newlines).
+- Verdict must be one of APPROVE, BLOCK, ADVISE; confidence one of high,
+  medium, low.
 
 ${ENVELOPE_MARKER}
 {
   "verdict": "APPROVE" | "BLOCK" | "ADVISE",
   "confidence": "high" | "medium" | "low",
-  "rationale": "<1-3 sentences>",
+  "rationale": "<1-3 sentences, single line>",
   "required_fixes": ["<actionable item>"]
 }
 `
