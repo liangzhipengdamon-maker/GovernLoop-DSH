@@ -1,6 +1,6 @@
 # DSH-GPTLoop
 
-**English** | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
+**English** | [简体中文](README.zh-CN.md)
 
 > **Not using DeepSeek Harness?** This repository is the DSH adapter. For
 > WorkBuddy, OpenCode, Claude Code, Codex, or any other agent, use
@@ -196,11 +196,9 @@ triggers a destructive-action checkpoint → the GovernLoop bridge sends evidenc
 to the existing GPT Web conversation → the independent review comes back →
 explicit human approval → the exact retry executes → DSH resumes.
 
-<video src="docs/assets/dsh-gptloop-45s-demo.mp4" controls width="100%"></video>
+[![DSH-GPTLoop — 45s real demo (click to play)](docs/assets/dsh-gptloop-demo-cover.png)](docs/assets/dsh-gptloop-45s-demo.mp4)
 
-*(If the video does not render, open
-[`docs/assets/dsh-gptloop-45s-demo.mp4`](docs/assets/dsh-gptloop-45s-demo.mp4)
-directly. Background music: PIXABAY.)*
+*(Click the thumbnail to play the ~45s real demo. Background music: PIXABAY.)*
 
 ## Quick start
 

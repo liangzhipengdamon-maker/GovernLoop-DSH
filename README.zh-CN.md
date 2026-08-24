@@ -1,6 +1,6 @@
 # DSH-GPTLoop
 
-[English](README.md) | **简体中文** | [日本語](README.ja.md)
+[English](README.md) | **简体中文**
 
 **DeepSeek Harness 的外循环。**
 
@@ -186,6 +186,14 @@ DSH-GPTLoop **不会**在 DSH 的内部推理循环里再插入一个 LLM。分�
 | 审查结果回读 | 人工复制/粘贴 | ✅ 自动 |
 | 桥接机制额外 DSH 模型循环 | — | **接近零** |
 | Relay / malformed-response failure | 依赖人工 | **Fail closed** |
+
+## 产品演示
+
+真实录制的完整工作流，约 45 秒、端到端（非模拟）：DSH 智能体触发破坏性动作检查点 → GovernLoop 桥把证据发送到已有 GPT Web 会话 → 独立评审返回 → 明确的人工批准 → 精确重试执行 → DSH 恢复。
+
+[![DSH-GPTLoop — 45 秒真实演示（点击播放）](docs/assets/dsh-gptloop-demo-cover.png)](docs/assets/dsh-gptloop-45s-demo.mp4)
+
+*（点击缩略图播放约 45 秒的真实演示。背景音乐：PIXABAY。）*
 
 ## 快速开始
 
