@@ -5,8 +5,12 @@
     - id: governloop-dsh
       name: 'governloop-dsh'
       config:
-        # relayPath: ''            # absolute path to governloop_session.py
-        #                           # (default: GOVERLOOP_RELAY_PATH env, else PATH)
+        # sessionManagerPath: ''  # absolute path to governloop_session.py
+        #                         # (default: GOVERLOOP_SESSION_MANAGER_PATH env, else PATH)
+        # relayPath: ''           # DEPRECATED config-ONLY alias for sessionManagerPath (AGE-63 key)
+        #                         # GOVERLOOP_RELAY_PATH is NO LONGER a session-manager fallback:
+        #                         # it belongs exclusively to Core's Neutral-Relay resolution
+        #                         # (P1 path-contract fix; the manager path is never written back)
         # stateDir: ''             # GovernLoop session state dir
         #                           # (default: GOVERLOOP_STATE_DIR env, else /tmp)
         # cdpPort: ''              # GOVERLOOP_CDP_PORT override
