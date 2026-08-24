@@ -1,0 +1,7 @@
+{"id":"prebind","sessionId":"WS-A65-PRODUCT-CLOSURE-E2E-2026-08-24","repo":"ws"}
+{"id":"scenario","name":"bridge-closure","exit":1,"ms":304016,"events":["gate-deny","review-started","latch-blocked-step","failed"],"adapterRequests":1}
+{"id":"prebind","sessionId":"WS-A65-PRODUCT-CLOSURE-E2E-2026-08-24","repo":"ws"}
+{"id":"scenario","name":"po-decline-real","exit":1,"ms":83401,"events":["gate-deny","review-started","latch-blocked-step","failed"],"adapterRequests":1}
+{"id":"scenario","name":"relay-fail-real","exit":1,"ms":23404,"events":["gate-deny","review-started","latch-blocked-step","failed"],"adapterRequests":1}
+{"id":"prebind","sessionId":"WS-A65-PRODUCT-CLOSURE-E2E-2026-08-24","repo":"ws"}
+{"id":"scenario","name":"attach-missing-real","exit":1,"ms":22444,"events":["gate-deny","review-started","latch-blocked-step","failed"],"adapterRequests":1}
