@@ -191,9 +191,9 @@ DSH-GPTLoop **不会**在 DSH 的内部推理循环里再插入一个 LLM。分�
 
 真实录制的完整工作流，约 45 秒、端到端（非模拟）：DSH 智能体触发破坏性动作检查点 → GovernLoop 桥把证据发送到已有 GPT Web 会话 → 独立评审返回 → 明确的人工批准 → 精确重试执行 → DSH 恢复。
 
-[![播放 45 秒 DSH-GPTLoop 产品演示](docs/assets/dsh-gptloop-demo-cover.png)](https://github.com/liangzhipengdamon-maker/GovernLoop-DSH/raw/main/docs/assets/dsh-gptloop-45s-demo.mp4)
+https://github.com/user-attachments/assets/60ece667-3e4c-46cd-8b83-1dea15ec7e08
 
-*（点击缩略图播放 45 秒演示。背景音乐：PIXABAY。）*
+*（点击 ▶ 就地播放 45 秒演示。背景音乐：PIXABAY。）*
 
 ## 快速开始
 

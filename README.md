@@ -196,9 +196,9 @@ triggers a destructive-action checkpoint → the GovernLoop bridge sends evidenc
 to the existing GPT Web conversation → the independent review comes back →
 explicit human approval → the exact retry executes → DSH resumes.
 
-[![Play the 45-second DSH-GPTLoop product demo](docs/assets/dsh-gptloop-demo-cover.png)](https://github.com/liangzhipengdamon-maker/GovernLoop-DSH/raw/main/docs/assets/dsh-gptloop-45s-demo.mp4)
+https://github.com/user-attachments/assets/60ece667-3e4c-46cd-8b83-1dea15ec7e08
 
-*(Click the thumbnail to play the 45-second demo. Background music: PIXABAY.)*
+*(Click ▶ to play the 45-second demo inline. Background music: PIXABAY.)*
 
 ## Quick start
 
