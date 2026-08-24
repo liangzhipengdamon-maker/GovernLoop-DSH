@@ -16,7 +16,7 @@ https://github.com/user-attachments/assets/60ece667-3e4c-46cd-8b83-1dea15ec7e08
 
 ## 为什么是 GovernLoop-DSH
 
-DeepSeek Harness 的优势在于把执行留在本地运行时：工具、测试、沙箱、会话和审批，都由本地 execution loop 负责。GPT Web 的作用在另一层——它承载着人类已经维护的项目思考：架构、权衡、评审记录和决策。governloop-dsh 只补两者之间缺失的桥：把 DeepSeek Harness 的关键 checkpoint 和 evidence 送到 GPT Web，把独立评审结果带回 DeepSeek Harness，并在需要时保留明确的人类授权——执行留在本地，项目思考保持连通。
+DeepSeek Harness 的优势在于把执行留在本地运行时：工具、测试、沙箱、会话和审批，都由本地 execution loop 负责。GPT Web 的作用在另一层——它的长期记忆，承载着人类已经维护的项目思考：架构、权衡、评审记录和决策。governloop-dsh 只补两者之间缺失的桥：把 DeepSeek Harness 的关键 checkpoint 和 evidence 送到 GPT Web，把独立评审结果带回 DeepSeek Harness，并在需要时保留明确的人类授权——执行留在本地，项目思考保持连通。
 
 - **去掉人工 clipboard relay。** Review request 和必要 evidence 可以自动进入 GPT Web，结果再回到同一条 DSH 工作流。
 - **保留持续外循环。** GPT Web 负责持续的项目推理和独立审查，DSH 继续专注本地执行。
