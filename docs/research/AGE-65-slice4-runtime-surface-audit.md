@@ -30,7 +30,7 @@ adoption decision.
 | 9 | `package.json` | 26 | Packaging, pinned peer dep `@deepseek-ai/dsh@0.1.1-rc.2` | **KEEP** | Pin-and-verify rule. |
 | 10 | `README.md` | 124 | Usage/docs (incl. test instructions, closure confirmations) | **KEEP** | Docs; trim only if it drifts from the runtime (not now). |
 | 11 | `tests/unit.test.mjs` | 126 | Pure tests: classifier, envelope, token | **KEEP** | Pins retained logic; envelope tests follow the envelope protocol decision (SIMPLIFY #4) if it moves to Core. |
-| 12 | `tests/unit-gate.test.mjs` | ~250 | Manager guards G1–G3 (token bypass, latch lifecycle, provider ownership) | **KEEP** | G1 (token is the ONLY retry path; APPROVE envelope alone never unlocks) is the load-bearing invariant under slice 3's `PARTIAL` verdict. |
+| 12 | `tests/unit-gate.test.mjs` | 191 | Manager guards G1–G3 (token bypass, latch lifecycle, provider ownership) | **KEEP** | G1 (token is the ONLY retry path; APPROVE envelope alone never unlocks) is the load-bearing invariant under slice 3's `PARTIAL` verdict. |
 | 13 | `tests/harness/` (4 files) | — | Keyless E2E harness: e2e-runner, run-e2e, scripted-adapter, stub-relay (5 scenarios) | **KEEP** | Keyless verification infrastructure (same pattern as AGE-65 slices); `DSH_BIN` env-required, no absolute paths. |
 
 **Counts:** 13 rows → 9 KEEP, 2 SIMPLIFY, 0 REMOVE-CANDIDATE (envelope authoring
