@@ -2,6 +2,10 @@
 
 **English** | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
+> **Not using DeepSeek Harness?** This repository is the DSH adapter. For
+> WorkBuddy, OpenCode, Claude Code, Codex, or any other agent, use
+> [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) directly.
+
 **The outer loop for DeepSeek Harness.**
 
 Connect [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH) to a persistent GPT Web outer loop for project reasoning, independent review, and human authority.
@@ -192,7 +196,9 @@ The technical plugin package remains [`governloop-dsh/`](governloop-dsh/). Its R
 Prerequisites:
 
 - pinned `@deepseek-ai/dsh@0.1.1-rc.2`;
-- [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) with the Neutral Relay and session manager;
+- [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) — install it
+  first (`./scripts/install.sh`); it provides the session manager
+  (`governloop_session.py`) and the Neutral Relay;
 - Chrome running with CDP (`--remote-debugging-port=9233`);
 - an open GPT Web conversation bound to the GovernLoop session.
 
