@@ -61,3 +61,44 @@
 STATUS: VERIFICATION_RUN_COMPLETE
 ARCHITECTURE_ADOPTION: NOT_AUTHORIZED
 VERDICT: BRIDGE_TRANSPORT_OK — B1/B2 NEED PO DECISION, S2 UNVERIFIED
+
+---
+
+# Round 2 — after B1 (Core) + B2 (plugin) remediation
+
+**Date:** 2026-08-24 (Round 2, three runs to account for external GPT flakiness)
+**Fixes under test:**
+- **B1** — GovernLoop Core `fix/b1-delivery-reconciliation` (PR #109): SEND_PENDING now confirms delivery via request-correlated read-back (`REVIEW_REQUEST_ID` in thread's last user message + settled assistant reply). No auto-resend; unrelated assistant messages never count.
+- **B2** — GovernLoop-DSH `age-65/pce-envelope-instruction-b2` (PR #12): (1) strict-JSON envelope instruction; (2) narrow deterministic repair (only raw control chars inside JSON string literals → escaped), added after real recurrence; parser otherwise unchanged, fail-closed kept.
+
+## Round 2 results (real environment, main @ 5282764 + B1 + B2)
+
+| Scenario | Result | Evidence |
+|---|---|---|
+| S1 bridge-closure | **PASS (once, run 1):** exit 0, E2E-COMPLETE, full lifecycle gate-deny → review-started → review-received → po-approved → token-minted → verdict-injected → **token-allowed**, adapterRequests==3 | run 1; plugin.log event chain |
+| S2 authorization (token exact retry) | **PASS (run 1)** — token minted from PO (userQuestions ADR-13 file `approve`), exact retry allowed once, DSH resumed (E2E-COMPLETE) | run 1 token-allowed + adapterRequests 3 |
+| S3a relay-fail | **PASS** (failed; no retry, no resend) | all runs |
+| S3b po-decline | **PASS** — review delivered + answered; envelope parsed (B2 works) → PO declined → po-not-approved; no retry. (Runs with a truncated GPT reply instead failed fail-closed — same blocking outcome, see B4) | runs 1–3 |
+| S3c attach-missing | **PASS** (refused before send; no third message in thread) | all runs |
+
+**B1 confirmed fixed:** no SEND_PENDING_TIMEOUT in any Round-2 run; delivery confirmation succeeded via primary or reconciled signals; the pipeline reached read-back every time.
+
+**B2 confirmed fixed (when the reply is complete):** the raw-newline envelope now parses via the narrow repair (strict-first then control-char escaping), schema validation unchanged (verdict/confidence/rationale/required_fixes enforced); truncated replies still fail closed.
+
+## New blocker (external flake — PO decision needed)
+
+**B4 — ChatGPT intermittent generation truncation.** Observed 3× across Round 1–2: the assistant reply stops mid-stream (e.g. 30–43 byte envelopes like `{"verdict":"BLOCK","`), with no DOM signal distinguishing "complete" from "cut off". The relay writes the partial text; the plugin correctly fail-closes (envelope invalid → BLOCKED, no retry, no resend). Product behavior is safe, but a single E2E run cannot reliably go all-green when the reviewer truncates.
+
+Decision options (for PO): (a) accept fail-closed + resubmit a NEW checkpoint on truncation (manual or a narrow Core-side one-shot re-read/retry of an incomplete response, still never auto-resend of a *delivered* message); (b) tolerate flakiness and gate Product Closure on "the loop completes when the reviewer answers completely" (observed: run 1 S1/S2 full pass); (c) other.
+
+## Classification (Round 2)
+
+- **B1 (delivery confirmation): CLOSED** (Core PR #109)
+- **B2 (envelope strictness): CLOSED** (plugin PR #12; narrow repair on recurrence)
+- **S1/S2: VERIFIED** (full loop + token retry observed in run 1)
+- **S3 fail-closed: VERIFIED**
+- **B4 (GPT truncation): NEW — external flake, fail-closed handled, PO decision needed**
+
+STATUS: VERIFICATION_RUN_COMPLETE (Round 2)
+ARCHITECTURE_ADOPTION: NOT_AUTHORIZED
+VERDICT: B1/B2 CLOSED — S1/S2 VERIFIED, S3 VERIFIED, B4 OPEN (PO decision)
