@@ -1,5 +1,9 @@
 # GovernLoop-DSH
 
+> **Not using DeepSeek Harness?** This repository is the DSH adapter. For
+> WorkBuddy, OpenCode, Claude Code, Codex, or any other agent, use
+> [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) directly.
+
 A thin native [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) (DSH)
 plugin that automatically connects DSH agents to GovernLoop's independent ChatGPT
 review — with checkpoints and evidence.
@@ -43,8 +47,9 @@ the full install, config, and test instructions.
 Minimal prerequisites:
 
 - Pinned `@deepseek-ai/dsh@0.1.1-rc.2` (developer preview — verify before upgrades).
-- [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) with the
-  Neutral Relay and its session manager (`governloop_session.py`).
+- [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) — install it
+  first (`./scripts/install.sh`); it provides the session manager
+  (`governloop_session.py`) and the Neutral Relay.
 - Chrome running with CDP (`--remote-debugging-port=9233`) and an open, bound
   ChatGPT conversation.
 
