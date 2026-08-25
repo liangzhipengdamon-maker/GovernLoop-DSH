@@ -50,7 +50,7 @@ Only critical checkpoints leave the local execution loop. Ordinary work stays lo
 Prerequisites:
 
 - pinned `@deepseek-ai/dsh@0.1.1-rc.2`;
-- [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) installed first with `./scripts/install.sh`;
+- [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) installed first with the current user-facing entrypoint: `sh install.sh`;
 - Chrome running with CDP (`--remote-debugging-port=9233`);
 - an open GPT Web conversation bound to the GovernLoop session.
 
@@ -86,6 +86,8 @@ Full package guide: [`governloop-dsh/README.md`](governloop-dsh/README.md).
 | Technical package | @deepseek-ai/dsh | Status |
 |---|---|---|
 | `governloop-dsh` 0.1.1 | 0.1.1-rc.2 | Product Closure VERIFIED |
+
+GovernLoop Core `v0.1.4` keeps the session-manager CLI seam used by this adapter. A source-level compatibility review found no required DSH runtime change for Project/custom-GPT conversation URLs, agent reload handling, or the new complete CLI stdout read-back. A fresh DSH + Core `v0.1.4` E2E smoke is still required before labeling that exact Core release combination as VERIFIED.
 
 DSH is developer preview, so upgrades should be re-verified before use.
 
