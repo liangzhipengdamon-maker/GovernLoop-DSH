@@ -14,4 +14,4 @@ jobs:
         with:
           node-version: 22
       - name: Unit tests
-        run: node --test governloop-dsh/tests/unit.test.mjs governloop-dsh/tests/unit-gate.test.mjs governloop-dsh/tests/unit-relay.test.mjs
+        run: node --test governloop-dsh/tests/unit.test.mjs governloop-dsh/tests/unit-gate.test.mjs governloop-dsh/tests/unit-relay.test.mjs governloop-dsh/tests/unit-web-cold-start.test.mjs
