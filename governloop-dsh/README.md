@@ -10,7 +10,7 @@ The outer loop can also become a cross-tool project context surface when the rel
 
 Product explanation: [`../docs/product/DSH-GPTLoop-outer-loop.md`](../docs/product/DSH-GPTLoop-outer-loop.md).
 
-**Version 0.1.0 — minimal vertical slice:** `BEFORE_DESTRUCTIVE_ACTION` on destructive `bash` commands (git history-rewriting + `rm -rf` class). Design contract: `docs/architecture/AGE-61-governloop-dsh-integration-architecture.md` (Rev 2). Verified runtime assumptions: `docs/spikes/AGE-63-dsh-runtime-verification.md`.
+**Version 0.1.1 — current technical package:** keeps the minimal `BEFORE_DESTRUCTIVE_ACTION` vertical slice and removes the whole-CLI DSH peer dependency so standalone npm installation no longer pulls the full DSH dependency tree. Architecture contract: `../docs/architecture/AGE-61-governloop-dsh-integration-architecture.md` (Rev 2). Product-closure verification evidence: [`../docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md`](../docs/verification/GovernLoop-DSH-Product-Closure-E2E-2026-08-24.md).
 
 ```text
 DSH tool action (git push --force)
@@ -33,8 +33,22 @@ DSH tool action (git push --force)
 
 ## Install
 
+Install GovernLoop Core first using the current user-facing Core entrypoint:
+
 ```text
-dsh plugin --profile <name> add governloop-dsh
+sh install.sh
+```
+
+Then install the DSH adapter:
+
+```text
+dsh plugin --profile <name> add governloop-dsh@0.1.1
+```
+
+Or install standalone from npm:
+
+```text
+npm install governloop-dsh@0.1.1
 ```
 
 Or mount locally (dev): `dsh --profile <name> --patch <repo>/governloop-dsh/cordis.patch.yml "…"` with `GOVERLOOP_SESSION_MANAGER_PATH` (or `config.sessionManagerPath`) pointing at `governloop_session.py`.
@@ -58,8 +72,17 @@ Or mount locally (dev): `dsh --profile <name> --patch <repo>/governloop-dsh/cord
 
 | governloop-dsh | @deepseek-ai/dsh | Status |
 |---|---|---|
-| 0.1.0 | 0.1.1-rc.2 | Product Closure VERIFIED |
+| 0.1.1 | 0.1.1-rc.2 | Product Closure VERIFIED |
 | — | other rcs | verify before upgrade (developer preview, breaking changes) |
+
+GovernLoop Core `v0.1.4` preserves the `governloop_session.py` CLI seam used by this adapter. Source-level review found no mandatory adapter runtime change for Core's Project/custom-GPT URL handling, `AGENT_RELOAD_REQUIRED` behavior for generic skill agents, or the new complete CLI stdout response markers. **VERIFIED (2026-08-26):** the exact DSH + Core `v0.1.4` combination passed a fresh real-environment E2E — real Chrome/CDP (`127.0.0.1:9233`), a bound ChatGPT Web conversation, the real Neutral Relay, and the installed Core v0.1.4 runtime (`~/.governloop/current/runtime/governloop_session.py`). All four Product-Closure scenarios passed:
+
+- **bridge-closure (S1+S2)** — real review delivered + read back + valid envelope → PO approve → one-shot token → exact retry once (`E2E-COMPLETE`);
+- **po-decline-real (S3b)** — review sent, PO declined → blocked, no retry;
+- **relay-fail-real (S3a)** — relay failure → failed, no auto-resend;
+- **attach-missing-real (S3c)** — refused attachment → failed, no send.
+
+Evidence: `spike/age-65-product-closure-e2e/e2e-summary.jsonl`.
 
 ## Tests
 

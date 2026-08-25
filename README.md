@@ -50,7 +50,7 @@ Only critical checkpoints leave the local execution loop. Ordinary work stays lo
 Prerequisites:
 
 - pinned `@deepseek-ai/dsh@0.1.1-rc.2`;
-- [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) installed first with `./scripts/install.sh`;
+- [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop) installed first with the current user-facing entrypoint: `sh install.sh`;
 - Chrome running with CDP (`--remote-debugging-port=9233`);
 - an open GPT Web conversation bound to the GovernLoop session.
 
@@ -86,6 +86,8 @@ Full package guide: [`governloop-dsh/README.md`](governloop-dsh/README.md).
 | Technical package | @deepseek-ai/dsh | Status |
 |---|---|---|
 | `governloop-dsh` 0.1.1 | 0.1.1-rc.2 | Product Closure VERIFIED |
+
+GovernLoop Core `v0.1.4` keeps the session-manager CLI seam used by this adapter. A source-level compatibility review found no required DSH runtime change for Project/custom-GPT conversation URLs, agent reload handling, or the new complete CLI stdout read-back. **VERIFIED (2026-08-26):** the exact DSH + Core `v0.1.4` combination passed a fresh real-environment E2E (real Chrome/CDP `127.0.0.1:9233`, bound ChatGPT Web conversation, real Neutral Relay, installed Core v0.1.4 runtime) — bridge-closure S1+S2 (deliver → read-back → valid envelope → PO approve → one-shot token → exact retry, `E2E-COMPLETE`), po-decline S3b, relay-fail S3a, and attach-missing S3c all passed; the three failure scenarios stayed fail-closed with no retry/resend. Evidence: `spike/age-65-product-closure-e2e/e2e-summary.jsonl`.
 
 DSH is developer preview, so upgrades should be re-verified before use.
 
