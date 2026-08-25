@@ -16,9 +16,14 @@ export const inject = ['userQuestions']
 
 export function apply(ctx, config = {}) {
   const manager = new CheckpointManager(ctx, config)
-  manager.registerPoProvider()
-  // Restore the provider slot on unload only if it is still ours (never clear a
-  // provider another plugin installed later).
+
+  // IMPORTANT: do NOT claim the single userQuestions provider slot during
+  // plugin activation. In the `dsh web` profile the GovernLoop plugin may load
+  // before api-gateway, whose native Web provider is registered later. Eagerly
+  // installing the headless fallback here makes api-gateway fail cold-start
+  // with DUPLICATE_PROVIDER. Native-first rule: let the runtime finish booting;
+  // install our headless fallback only when a denied tool result actually needs
+  // the review pipeline and no native provider exists at that time.
   ctx.effect(() => () => manager.dispose())
 
   // Gate 1 — per-tool: classify destructive calls, deny, record pending checkpoint.
@@ -42,6 +47,10 @@ export function apply(ctx, config = {}) {
   // references was empirically sufficient, and no half-wired ctx.jobs hook is
   // left behind. Jobs-based ownership/cancellation is a documented follow-up.
   ctx.on('tools/result', (exec, result) => {
+    // By the time a real tool result exists, profile/plugin cold-start is over.
+    // If Web/ACP registered a native provider, registerPoProvider() is a no-op;
+    // otherwise headless mode gets the file-backed fallback just in time.
+    manager.registerPoProvider()
     manager.onToolResult(exec, result)
   })
 
