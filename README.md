@@ -57,8 +57,17 @@ Prerequisites:
 Install the DSH plugin:
 
 ```text
-dsh plugin --profile <name> add governloop-dsh
+dsh plugin --profile web add governloop-dsh@0.1.1
 ```
+
+Or install standalone from npm:
+
+```text
+npm install governloop-dsh@0.1.1
+```
+
+`0.1.1` removes the whole-CLI DSH peer dependency, so a plain npm install no
+longer pulls the full DSH dependency tree.
 
 Or mount locally with `governloop-dsh/cordis.patch.yml` and set `GOVERLOOP_SESSION_MANAGER_PATH` to `governloop_session.py`.
 
@@ -76,7 +85,7 @@ Full package guide: [`governloop-dsh/README.md`](governloop-dsh/README.md).
 
 | Technical package | @deepseek-ai/dsh | Status |
 |---|---|---|
-| `governloop-dsh` 0.1.0 | 0.1.1-rc.2 | Product Closure VERIFIED |
+| `governloop-dsh` 0.1.1 | 0.1.1-rc.2 | Product Closure VERIFIED |
 
 DSH is developer preview, so upgrades should be re-verified before use.
 
