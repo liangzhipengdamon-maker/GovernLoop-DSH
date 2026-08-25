@@ -50,7 +50,7 @@ DSH 恢复执行
 前置条件：
 
 - 固定 `@deepseek-ai/dsh@0.1.1-rc.2`；
-- 先安装 [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop)：`./scripts/install.sh`；
+- 先通过当前面向用户的入口安装 [GovernLoop Core](https://github.com/liangzhipengdamon-maker/GovernLoop)：`sh install.sh`；
 - Chrome 通过 CDP 启动（`--remote-debugging-port=9233`）；
 - 已打开 GPT Web 会话，并绑定到 GovernLoop session。
 
@@ -85,6 +85,8 @@ npm install governloop-dsh@0.1.1
 | 技术包 | @deepseek-ai/dsh | 状态 |
 |---|---|---|
 | `governloop-dsh` 0.1.1 | 0.1.1-rc.2 | Product Closure VERIFIED |
+
+GovernLoop Core `v0.1.4` 仍保留本适配器使用的 session-manager CLI 边界。源码级兼容性检查未发现 Project/custom-GPT 会话 URL、Agent reload 处理或完整 CLI stdout 回读要求 DSH runtime 必须修改。但在把这一精确 Core 版本组合标记为 VERIFIED 之前，仍需完成一次全新的 DSH + Core `v0.1.4` E2E smoke。
 
 DSH 仍处于 developer preview，升级前应重新验证。
 
