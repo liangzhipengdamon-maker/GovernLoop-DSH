@@ -57,8 +57,16 @@ DSH 恢复执行
 安装 DSH 插件：
 
 ```text
-dsh plugin --profile <name> add governloop-dsh
+dsh plugin --profile web add governloop-dsh@0.1.1
 ```
+
+或独立从 npm 安装：
+
+```text
+npm install governloop-dsh@0.1.1
+```
+
+`0.1.1` 移除了整包 DSH peer dependency，因此普通 npm 安装不再拉取完整的 DSH 依赖树。
 
 也可以通过 `governloop-dsh/cordis.patch.yml` 本地挂载，并将 `GOVERLOOP_SESSION_MANAGER_PATH` 指向 `governloop_session.py`。
 
@@ -76,7 +84,7 @@ dsh plugin --profile <name> add governloop-dsh
 
 | 技术包 | @deepseek-ai/dsh | 状态 |
 |---|---|---|
-| `governloop-dsh` 0.1.0 | 0.1.1-rc.2 | Product Closure VERIFIED |
+| `governloop-dsh` 0.1.1 | 0.1.1-rc.2 | Product Closure VERIFIED |
 
 DSH 仍处于 developer preview，升级前应重新验证。
 
