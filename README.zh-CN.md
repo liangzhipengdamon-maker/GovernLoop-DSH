@@ -86,7 +86,7 @@ npm install governloop-dsh@0.1.1
 |---|---|---|
 | `governloop-dsh` 0.1.1 | 0.1.1-rc.2 | Product Closure VERIFIED |
 
-GovernLoop Core `v0.1.4` 仍保留本适配器使用的 session-manager CLI 边界。源码级兼容性检查未发现 Project/custom-GPT 会话 URL、Agent reload 处理或完整 CLI stdout 回读要求 DSH runtime 必须修改。但在把这一精确 Core 版本组合标记为 VERIFIED 之前，仍需完成一次全新的 DSH + Core `v0.1.4` E2E smoke。
+GovernLoop Core `v0.1.4` 仍保留本适配器使用的 session-manager CLI 边界。源码级兼容性检查未发现 Project/custom-GPT 会话 URL、Agent reload 处理或完整 CLI stdout 回读要求 DSH runtime 必须修改。**VERIFIED（2026-08-26）**：这一精确的 DSH + Core `v0.1.4` 组合已通过全新真实环境 E2E——真实 Chrome/CDP `127.0.0.1:9233`、绑定的 ChatGPT Web 会话、真实 Neutral Relay、已安装的 Core v0.1.4 runtime（`~/.governloop/current/runtime/governloop_session.py`）。全部四个 Product-Closure 场景通过：bridge-closure S1+S2（真实投递 → 读回 → 有效 envelope → PO 批准 → one-shot token → 精确重试一次，`E2E-COMPLETE`）、po-decline S3b、relay-fail S3a、attach-missing S3c——三个失败场景均 fail-closed、无重试/无重发。证据：`spike/age-65-product-closure-e2e/e2e-summary.jsonl`。
 
 DSH 仍处于 developer preview，升级前应重新验证。
 

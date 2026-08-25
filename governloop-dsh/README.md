@@ -75,7 +75,14 @@ Or mount locally (dev): `dsh --profile <name> --patch <repo>/governloop-dsh/cord
 | 0.1.1 | 0.1.1-rc.2 | Product Closure VERIFIED |
 | — | other rcs | verify before upgrade (developer preview, breaking changes) |
 
-GovernLoop Core `v0.1.4` preserves the `governloop_session.py` CLI seam used by this adapter. Source-level review found no mandatory adapter runtime change for Core's Project/custom-GPT URL handling, `AGENT_RELOAD_REQUIRED` behavior for generic skill agents, or the new complete CLI stdout response markers. The exact DSH + Core `v0.1.4` combination must still pass a fresh E2E smoke before being marked VERIFIED.
+GovernLoop Core `v0.1.4` preserves the `governloop_session.py` CLI seam used by this adapter. Source-level review found no mandatory adapter runtime change for Core's Project/custom-GPT URL handling, `AGENT_RELOAD_REQUIRED` behavior for generic skill agents, or the new complete CLI stdout response markers. **VERIFIED (2026-08-26):** the exact DSH + Core `v0.1.4` combination passed a fresh real-environment E2E — real Chrome/CDP (`127.0.0.1:9233`), a bound ChatGPT Web conversation, the real Neutral Relay, and the installed Core v0.1.4 runtime (`~/.governloop/current/runtime/governloop_session.py`). All four Product-Closure scenarios passed:
+
+- **bridge-closure (S1+S2)** — real review delivered + read back + valid envelope → PO approve → one-shot token → exact retry once (`E2E-COMPLETE`);
+- **po-decline-real (S3b)** — review sent, PO declined → blocked, no retry;
+- **relay-fail-real (S3a)** — relay failure → failed, no auto-resend;
+- **attach-missing-real (S3c)** — refused attachment → failed, no send.
+
+Evidence: `spike/age-65-product-closure-e2e/e2e-summary.jsonl`.
 
 ## Tests
 
