@@ -22,6 +22,16 @@ DSH tool action (git push --force)
 → verdict injected + followup (resume)
 ```
 
+New session (conversation start):
+
+```text
+agent/session-start
+→ if the GovernLoop session for the conversation's working directory is unbound,
+  ask once (native userQuestions modal) for the ChatGPT conversation URL
+→ bind via the session-manager CLI (new if needed, then bind <url>)
+→ the review pipeline above then works without any external CLI step
+```
+
 ## Authority model (non-negotiable)
 
 - GPT Web review is **advisory evidence only**. It never authorizes execution.
@@ -66,6 +76,7 @@ Or mount locally (dev): `dsh --profile <name> --patch <repo>/governloop-dsh/cord
 | `relayTimeoutMs` | 600000 | relay wait bound |
 | `attachPaths` | `[]` | evidence attachments (core validates/redacts) |
 | `allowRules` | `[]` | exact command prefixes exempt from review (noise reduction only) |
+| `sessionStartBind` | `true` | ask once (native userQuestions modal) for the ChatGPT conversation URL when a session starts with no bound GovernLoop session, then bind it via the session-manager CLI (`new` if needed, then `bind <url>`) |
 | `debugOut` | `''` | lifecycle JSONL log (tests/ops) |
 
 ## Tested compatibility
