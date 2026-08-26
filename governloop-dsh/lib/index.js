@@ -63,8 +63,18 @@ export function apply(ctx, config = {}) {
   ctx.on('agent/disposed', (payload) => manager.onAgentGone(payload.agent))
   ctx.on('session/disposed', (session) => manager.onAgentGone({ id: session.id }))
 
-  // agent/session-start: deliberately nothing in v1 — restart/resume must not
-  // auto-resend anything (AGE-61 §4.10). In-flight checkpoints at crash are
-  // lost (in-memory state) and the agent starts un-latched; a resumed agent may
-  // re-trigger a fresh checkpoint for the same action, which is fail-closed.
+  // New-session URL binding: when a session starts and its GovernLoop session
+  // is unbound, ask once (native userQuestions modal) and bind. Fire-and-forget:
+  // never blocks session start; failures stay logged (debugOut). Restart/resume
+  // stays fail-closed (no auto-resend of checkpoints, AGE-61 §4.10); this only
+  // binds the conversation URL for the fresh session.
+  ctx.on('agent/session-start', (payload) => {
+    void manager.onSessionStart(payload.agent).catch((err) => {
+      manager.debug(
+        { sessionId: payload.agent?.session?.id ?? payload.agent?.id, status: 'SESSION_START' },
+        'session-start-handler-error',
+        { message: String(err && (err.message || err)) },
+      )
+    })
+  })
 }

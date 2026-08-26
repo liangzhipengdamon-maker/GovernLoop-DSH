@@ -14,7 +14,7 @@ import fs from 'node:fs'
 import { classify } from './classifier.js'
 import { buildCheckpointMessage, extractEnvelope } from './envelope.js'
 import { mintToken, checkToken, consumeToken } from './token.js'
-import { ensureSession, sendCheckpoint, sessionStateDir } from './relay.js'
+import { ensureSession, extractSessionId, runSessionManager, sendCheckpoint, sessionStateDir } from './relay.js'
 
 export const CHECKPOINT_TYPE = 'BEFORE_DESTRUCTIVE_ACTION'
 
@@ -25,6 +25,7 @@ const DEFAULT_CONFIG = {
   attachPaths: [],
   allowRules: [],
   poAnswerFile: '', // headless PO approval channel (ADR-13): file containing approve|decline
+  sessionStartBind: true, // ask once (native modal) for the conversation URL when a session starts unbound
   debugOut: '',
   advisoryFooter:
     'This review is advisory evidence. It does NOT authorize repository mutation, commit, push, PR, merge, deploy, release, or any other action. Follow the shared authorization boundary; only explicit user authorization grants action.',
@@ -56,6 +57,7 @@ export class CheckpointManager {
     this.ownPoProvider = null
     this.bySession = new Map() // sessionId -> checkpoint record (active or terminal-blocked)
     this.events = new Map() // sessionId -> rolling evidence event buffer
+    this.urlAsked = new Set() // sessionId -> conversation-URL ask already offered (once per session)
     this.seq = 0
   }
 
@@ -364,6 +366,87 @@ export class CheckpointManager {
       this.userQuestions.provider = undefined
     }
     this.ownPoProvider = null
+  }
+
+  /**
+   * New-session URL binding (ask once). Called from the agent/session-start
+   * hook. If the GovernLoop session for the conversation's working directory
+   * exists and is already bound → no-op. Otherwise ask the user once (native
+   * userQuestions modal; free-text custom answer) for the ChatGPT conversation
+   * URL and bind it through the session-manager CLI (`new` if needed, then
+   * `bind <url>`). Never blocks session start; failures stay logged, unbound
+   * sessions simply keep destructive actions blocked (fail-closed).
+   */
+  async onSessionStart(agent) {
+    const sessionId = agent?.session?.id ?? agent?.id ?? null
+    const cwd = agent?.session?.header?.cwd ?? ''
+    if (!sessionId || !cwd) return
+    if (this.urlAsked.has(sessionId)) return
+    this.urlAsked.add(sessionId) // ask at most once per session, even if declined
+    if (this.config.sessionStartBind === false) return
+    const probe = { sessionId, status: 'SESSION_START' }
+    try {
+      const status = await runSessionManager(['status'], { config: this.config, timeoutMs: 15000, cwd })
+      if (status.code === 0 && !status.aborted && /conversation:\s*bound:\s*yes/i.test(status.stdout)) {
+        this.debug(probe, 'session-already-bound')
+        return
+      }
+      const url = await this.askConversationUrl()
+      if (!url) {
+        this.debug(probe, 'session-bind-declined')
+        return
+      }
+      // Ensure a session exists for this cwd (status → new). Tolerate exit 3:
+      // an unbound `new` still prints `NEW session <id>` and exits 3.
+      let id = extractSessionId(status.stdout)
+      if (!id) {
+        const created = await runSessionManager(['new'], { config: this.config, timeoutMs: 30000, cwd })
+        if (created.aborted || (created.code !== 0 && created.code !== 3)) {
+          throw new Error(`session init failed (exit ${created.code}): ${(created.stderr || created.stdout).slice(0, 300)}`)
+        }
+        id = extractSessionId(created.stdout)
+        if (!id) throw new Error('governloop session init returned no SESSION id')
+      }
+      const bound = await runSessionManager(['bind', url], { config: this.config, timeoutMs: 15000, cwd })
+      if (bound.aborted || bound.code !== 0) {
+        this.debug(probe, 'session-bind-failed', { stderr: (bound.stderr || bound.stdout).slice(0, 300) })
+        return
+      }
+      this.debug(probe, 'session-bound', { sessionId: id, url })
+    } catch (err) {
+      this.debug(probe, 'session-bind-error', { message: String(err && (err.message || err)) })
+    }
+  }
+
+  /** Ask once (native userQuestions modal) for the ChatGPT conversation URL. */
+  async askConversationUrl() {
+    if (!this.userQuestions) return null
+    try {
+      const answer = await this.userQuestions.ask({
+        questions: [
+          {
+            id: 'governloop-bind-url',
+            header: 'GovernLoop: bind ChatGPT conversation',
+            question:
+              'Paste the ChatGPT conversation URL to bind this GovernLoop session (asked once per session).',
+            detail:
+              'The URL is session-level state stored in a temp file only. ' +
+              'Example: https://chatgpt.com/g/<gpt-id>/c/<conversation-id>. ' +
+              'Choose "Skip" or leave the URL empty to stay unbound.',
+            options: [
+              { label: 'Skip (stay unbound)', description: 'Destructive actions stay blocked until the session is bound' },
+            ],
+          },
+        ],
+      })
+      const item = answer?.answers?.[0]
+      const selected = item?.selected ?? []
+      if (selected.includes('Skip (stay unbound)')) return null
+      const url = String(item?.custom ?? '').trim()
+      return /^https?:\/\/chatgpt\.com\//.test(url) ? url : null
+    } catch (err) {
+      return null // no provider / dismissed / malformed — stay unbound, ask once only
+    }
   }
 
   async askPo(record) {

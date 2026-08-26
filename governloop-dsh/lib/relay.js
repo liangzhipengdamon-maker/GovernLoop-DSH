@@ -47,14 +47,15 @@ export function managerEnv(config) {
 /**
  * Run the session manager once. Resolves with exit code and captured output.
  * @param {string[]} args
- * @param {{ config: object, timeoutMs: number, signal?: AbortSignal }} options
+ * @param {{ config: object, timeoutMs: number, signal?: AbortSignal, cwd?: string }} options
  */
 export function runSessionManager(args, options) {
-  const { config, timeoutMs = 600000, signal } = options
+  const { config, timeoutMs = 600000, signal, cwd } = options
   return new Promise((resolve, reject) => {
     const child = spawn(relayExecutable(config), args, {
       env: managerEnv(config),
       stdio: ['ignore', 'pipe', 'pipe'],
+      ...(cwd ? { cwd } : {}),
     })
     let stdout = ''
     let stderr = ''
@@ -98,14 +99,14 @@ export function extractSessionId(stdout) {
  * @param {{ task?: string, signal?: AbortSignal }} [options]
  */
 export async function ensureSession(config, options = {}) {
-  const status = await runSessionManager(['status'], { config, timeoutMs: 15000, signal: options.signal })
+  const status = await runSessionManager(['status'], { config, timeoutMs: 15000, signal: options.signal, cwd: options.cwd })
   if (status.code === 0 && !status.aborted) {
     const id = extractSessionId(status.stdout)
     if (id) return id
   }
   const args = ['new']
   if (options.task) args.push('--title', options.task)
-  const created = await runSessionManager(args, { config, timeoutMs: 30000, signal: options.signal })
+  const created = await runSessionManager(args, { config, timeoutMs: 30000, signal: options.signal, cwd: options.cwd })
   if (created.aborted) throw new Error('governloop session init cancelled')
   if (created.code === 3) {
     throw new Error('USER_CONVERSATION_SELECTION_REQUIRED: bind a ChatGPT conversation once per session (governloop bind <url>)')
